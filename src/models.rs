@@ -8,7 +8,7 @@ pub struct FileEntry {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Snapshot {
-    id: u32,
-    message: String,
-    files: Vec<FileEntry>,
+    pub id: u32,
+    pub message: String,
+    pub files: Vec<FileEntry>,
 }

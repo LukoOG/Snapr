@@ -1,5 +1,5 @@
-use std::process;
 use crate::commands::Command;
+use std::process;
 
 pub fn parse_args(args: &[String]) -> Command {
     let length = args.len();
@@ -12,9 +12,10 @@ pub fn parse_args(args: &[String]) -> Command {
 
     match arg {
         "init" => Command::Init,
-        "save" => {
-            Command::Save { message: "Init".to_string() }
-        }
+        "history" => Command::History,
+        "save" => Command::Save {
+            message: "Init".to_string(),
+        },
         _ => Command::Init,
     }
 }

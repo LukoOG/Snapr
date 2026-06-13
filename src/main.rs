@@ -1,24 +1,32 @@
-use std::env;
+use std::{env, error::Error};
 
 mod cli;
 mod commands;
+mod models;
+mod storage;
 
 use cli::parse_args;
-use commands::{
-    Command,
-    init::handle_init,
-    history::handle_history,
-    save::handle_save
-};
-fn main() {
+use commands::{Command, history::handle_history, init::handle_init, save::handle_save};
+use storage::load_snapshots;
+
+fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
 
     let command = parse_args(&args);
 
     let results = match command {
         Command::Init => handle_init(),
+        Command::History => {
+            let snapshots = load_snapshots()?;
+            handle_history(&snapshots)
+        },
         // Command::Save { message } => handle_save(message),
-        // Command::History => handle_history(),
-        _ => Ok(())
+        _ => Ok(()),
     };
+
+    if let Err(e) = results {
+        eprintln!("Error: {e}");
+        std::process::exit(1)
+    }
+    Ok(())
 }
