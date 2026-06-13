@@ -15,17 +15,7 @@ use std::{error::Error, fs};
 /// let _ = load_snapshots();
 /// ```
 pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
-    let contents = fs::read_to_string(".snapr/objects/snapshots.json");
-    let parsed = match contents {
-        Ok(content) => match serde_json::from_str(&content) {
-            Ok(parsed) => parsed,
-            Err(e) => return Err(Box::new(e)),
-        },
-        Err(e) => {
-            eprintln!("snapr workspace not initialized: {e}");
-            return Err(Box::new(e));
-        }
-    };
-
+    let contents = fs::read_to_string(".snapr/snapshots.json")?;
+    let parsed = serde_json::from_str(&contents)?;
     Ok(parsed)
 }

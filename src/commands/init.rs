@@ -32,8 +32,8 @@ pub fn handle_init() -> Result<(), Box<dyn Error>>{
     }
 
     fs::create_dir_all(".snapr/objects")?;
-    fs::write(".snapr/objects/config.json", r#"{"version": 1}"#)?;
-    fs::write(".snapr/objects/snapshots.json", "[]")?;
+    fs::write(".snapr/config.json", r#"{"version": 1}"#)?;
+    fs::write(".snapr/snapshots.json", "[]")?;
     println!("Initialized snapr workspace");
 
     Ok(())

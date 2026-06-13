@@ -22,11 +22,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
         // Command::Save { message } => handle_save(message),
         _ => Ok(()),
-    };
-
-    if let Err(e) = results {
-        eprintln!("Error: {e}");
-        std::process::exit(1)
-    }
+    }?;
     Ok(())
 }
