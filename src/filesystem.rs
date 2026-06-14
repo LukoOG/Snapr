@@ -1,4 +1,8 @@
-use std::{error::Error, path::PathBuf};
+use std::{
+    error::Error,
+    fs,
+    path::{Path, PathBuf},
+};
 use walkdir::{DirEntry, WalkDir};
 
 fn should_skip(entry: &DirEntry) -> bool {
@@ -18,4 +22,16 @@ pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
         .map(|e| e.into_path())
         .collect();
     Ok(files)
+}
+
+pub fn store_object(hash: &str, contents: &[u8]) -> Result<bool, Box<dyn Error>> {
+    debug_assert_eq!(hash.len(), 64);
+    let path = format!(".snapr/objects/{}", hash);
+    let file_exists = Path::new(&path).exists();
+
+    if file_exists {
+       return Ok(false)
+    }
+    fs::write(path, contents)?;
+    Ok(true)
 }
