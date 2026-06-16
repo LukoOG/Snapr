@@ -9,10 +9,9 @@ mod storage;
 
 use cli::parse_args;
 use commands::{Command, history::handle_history, init::handle_init, save::handle_save};
-use filesystem::{collect_files, store_object};
-use hash::hash_file;
-use models::{FileEntry};
 use storage::load_snapshots;
+
+use crate::filesystem::build_entries;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -28,18 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
-            let files = collect_files()?;
-            let mut entries: Vec<FileEntry> = Vec::new();
-            {
-                for file in files {
-                    let (hash, contents) = hash_file(&file)?;
-                    store_object(&hash, &contents)?;
-                    entries.push(FileEntry {
-                        path: file.to_string_lossy().to_string(),
-                        hash
-                    });
-                };
-            };
+            let entries = build_entries()?;
             handle_save(&mut snapshots, message, entries)
         }
     }?;
