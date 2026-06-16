@@ -12,7 +12,7 @@ fn should_skip(entry: &DirEntry) -> bool {
     entry.file_type().is_dir()
         && matches!(
             entry.file_name().to_str(),
-            Some(".git" | "target" | ".snapr")
+            Some(".git" | "target" | ".snapr" | ".DS_Store")
         )
 }
 
@@ -22,7 +22,7 @@ pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
         .filter_entry(|e| !should_skip(e))
         .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file())
-        .map(|e| e.into_path().strip_prefix(".").unwrap().to_path_buf())
+        .map(|e| e.into_path().strip_prefix(".").expect("path should be relative to current directory").to_path_buf())
         .collect();
     Ok(files)
 }

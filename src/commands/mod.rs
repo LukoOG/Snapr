@@ -6,4 +6,5 @@ pub enum Command {
     Init,
     Save { message: String },
     History,
+    Diff (u32, u32)
 }

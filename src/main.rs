@@ -30,6 +30,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             let entries = build_entries()?;
             handle_save(&mut snapshots, message, entries)
         }
+        Command::Diff(old, new) => {
+            todo!()
+        }
     }?;
 
     //testing stuff
