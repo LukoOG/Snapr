@@ -8,10 +8,9 @@ mod models;
 mod storage;
 
 use cli::parse_args;
-use commands::{Command, history::handle_history, init::handle_init, save::handle_save};
+use commands::{Command, history::handle_history, init::handle_init, save::handle_save, diff::handle_diff};
+use filesystem::build_entries;
 use storage::load_snapshots;
-
-use crate::filesystem::build_entries;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -31,7 +30,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             handle_save(&mut snapshots, message, entries)
         }
         Command::Diff(old, new) => {
-            todo!()
+            let snapshots = load_snapshots()?;
+            handle_diff(&snapshots, old, new)
         }
     }?;
 
