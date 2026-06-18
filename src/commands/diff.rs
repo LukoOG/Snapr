@@ -33,6 +33,10 @@ fn calculate_diff(old_snapshot: &Snapshot, new_snapshot: &Snapshot) -> DiffResul
         }
     }
 
+    result.added.sort();
+    result.modified.sort();
+    result.removed.sort();
+
     result
 }
 

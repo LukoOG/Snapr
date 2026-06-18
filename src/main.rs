@@ -8,10 +8,11 @@ mod models;
 mod storage;
 
 use cli::parse_args;
-use commands::{Command, history::handle_history, init::handle_init, save::handle_save, diff::handle_diff};
+use commands::{
+    Command, diff::handle_diff, history::handle_history, init::handle_init, save::handle_save,
+};
 use filesystem::build_entries;
 use storage::load_snapshots;
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
