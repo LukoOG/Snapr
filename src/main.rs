@@ -14,6 +14,8 @@ use commands::{
 use filesystem::build_entries;
 use storage::load_snapshots;
 
+use crate::commands::restore::handle_restore;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
 
@@ -33,6 +35,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         Command::Diff(old, new) => {
             let snapshots = load_snapshots()?;
             handle_diff(&snapshots, old, new)
+        }
+        Command::Restore(snapshot_id) => {
+            let snapshots = load_snapshots()?;
+            handle_restore(&snapshots, snapshot_id)
         }
     }?;
 

@@ -5,15 +5,23 @@ use std::{
 };
 use walkdir::{DirEntry, WalkDir};
 
-use crate::models::FileEntry;
 use crate::hash::hash_file;
+use crate::models::FileEntry;
 
 fn should_skip(entry: &DirEntry) -> bool {
-    entry.file_type().is_dir()
-        && matches!(
-            entry.file_name().to_str(),
-            Some(".git" | "target" | ".snapr" | ".DS_Store")
-        )
+    let name = entry.file_name().to_str();
+
+    match entry.file_type() {
+        t if t.is_dir() => {
+            matches!(
+                name,
+                Some(".git" | "target" | ".snapr")
+            )
+        }
+        _ => {
+            matches!(name, Some(".DS_Store"))
+        }
+    }
 }
 
 pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
@@ -22,7 +30,12 @@ pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
         .filter_entry(|e| !should_skip(e))
         .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file())
-        .map(|e| e.into_path().strip_prefix(".").expect("path should be relative to current directory").to_path_buf())
+        .map(|e| {
+            e.into_path()
+                .strip_prefix(".")
+                .expect("path should be relative to current directory")
+                .to_path_buf()
+        })
         .collect();
     Ok(files)
 }

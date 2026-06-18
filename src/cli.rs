@@ -42,6 +42,14 @@ pub fn parse_args(args: &[String]) -> Command {
 
             Command::Diff(old_id, new_id)
         }
+        "restore" => {
+            if let Some(id) = args.get(2) {
+                Command::Restore(id.parse::<u32>().expect("Enter a valid id"))
+            } else {
+                eprintln!("Id not provided!");
+                std::process::exit(1);
+            }
+        }
         _ => Command::Init,
     }
 }
