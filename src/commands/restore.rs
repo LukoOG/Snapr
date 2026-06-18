@@ -19,7 +19,7 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
         }
 
         println!("{:?} {:?}", &object_path, path);
-        let contents = fs::read_to_string(&object_path)?;
+        let contents = fs::read(&object_path)?;
 
         if let Some(parent) = Path::new(path).parent() {
             fs::create_dir_all(parent)?;
