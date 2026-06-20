@@ -6,14 +6,14 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-fn restore() -> Result<(), Box<dyn Error>> {
-    // let contents = fs::read(&object_path).map_err(|_| format!("Missing object: {}", hash))?;
+fn restore_file(path: &str, object_path: &str) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read(object_path).map_err(|_| format!("Missing object: {}", object_path))?;
 
-    // if let Some(parent) = Path::new(path).parent() {
-    //     fs::create_dir_all(parent)?;
-    // }
+    if let Some(parent) = Path::new(path).parent() {
+        fs::create_dir_all(parent)?;
+    }
 
-    // fs::write(path, contents)?
+    fs::write(path, contents)?;
     Ok(())
 }
 
@@ -22,26 +22,29 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
         .iter()
         .find(|s| s.id == snapshot_id)
         .ok_or("Snapshot not found")?;
+    let mut restored = 0;
+    let mut skipped = 0;
 
     for FileEntry { path, hash } in snapshot.files.iter() {
         let object_path = format!(".snapr/objects/{}", hash);
-        println!("{:?} {:?}", &object_path, path);
+        if let Some(current) = fs::read(path).ok() {
+            let current_hash = hash_file_bytes(&current)?;
 
-        match fs::read(path).ok() {
-            Some(current) => {
-                let current_hash = hash_file_bytes(&current)?;
-                if &current_hash == hash {
-                    println!("Skipping file");
-                    continue;
-                } else {
-                    todo!("Restore")
-                }
+            if &current_hash == hash {
+                skipped += 1;
+                continue;
             }
 
-            None => todo!("Restore"),
+            restore_file(path, &object_path)?;
+            restored += 1;
+        } else {
+            restore_file(path, &object_path)?;
+            restored += 1;
         }
     }
 
-    println!("Restored snapshot {}", snapshot_id);
+    println!("Restored snapshot {}\n", snapshot_id);
+    println!("{} files restored", restored);
+    println!("{} files skipped", skipped);
     Ok(())
 }
