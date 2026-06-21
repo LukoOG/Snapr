@@ -2,6 +2,7 @@ use std::{env, error::Error};
 
 mod cli;
 mod commands;
+mod config;
 mod filesystem;
 mod hash;
 mod models;
