@@ -19,8 +19,8 @@ fn print_section(title: &str, symbol: char, entries: &[String]) {
     }
 }
 
-fn print_diff(old_id: u32, new_id: u32, diff: &DiffResult) {
-    println!("Comparing Snapshot {} -> {}", old_id, new_id);
+fn print_status(diff: &DiffResult) {
+    println!("Current Workspace Status");
     println!("\nSummary");
     println!(
         "{} added, {} modified, {} removed",
@@ -49,16 +49,10 @@ pub fn handle_status(
         .find(|s| s.id == config.get_current_snapshot())
         .ok_or("Snapshot not found!")?;
 
-    let snapshot_map = snapshot
-        .files
-        .iter()
-        .map(|FileEntry { hash, path }| (hash.clone(), path.clone()))
-        .collect::<HashMap<String, String>>();
-
     let current_workspace_snapshot = Snapshot::build_workspace(entries);
 
     let result = calculate_diff(&snapshot, &current_workspace_snapshot);
 
-    print_diff(snapshot.id, 0, &result);
+    print_status(&result);
     Ok(())
 }
