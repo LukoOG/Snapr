@@ -23,4 +23,8 @@ impl SnaprConfig {
     pub fn new() -> Self {
         SnaprConfig { version:1, current_snapshot: None }
     }
+
+    pub fn set_current_snapshot(&mut self, id: u32) {
+        self.current_snapshot = Some(id)
+    }
 }

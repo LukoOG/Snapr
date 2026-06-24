@@ -1,5 +1,5 @@
 use crate::config::{load_config, save_config};
-use crate::hash::{hash_file_bytes};
+use crate::hash::hash_file_bytes;
 use crate::models::FileEntry;
 use crate::models::Snapshot;
 
@@ -20,6 +20,13 @@ fn restore_file(path: &str, object_path: &str) -> Result<(), Box<dyn Error>> {
 
 pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Box<dyn Error>> {
     let mut config = load_config()?;
+
+    //check if on current snapshot
+    if config.current_snapshot == Some(snapshot_id) {
+        println!("Already on snapshot {}", snapshot_id);
+        return Ok(());
+    }
+    
     let snapshot = snapshots
         .iter()
         .find(|s| s.id == snapshot_id)
@@ -49,7 +56,7 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
     println!("{} files restored", restored);
     println!("{} files skipped", skipped);
 
-    config.current_snapshot = Some(snapshot_id);
+    config.set_current_snapshot(snapshot_id);
     save_config(&config)?;
     Ok(())
 }

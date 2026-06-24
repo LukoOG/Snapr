@@ -1,13 +1,13 @@
-use std::fs;
 use crate::models::SnaprConfig;
+use std::{fs, path::Path};
 
 pub fn load_config() -> Result<SnaprConfig, Box<dyn std::error::Error>> {
-    let contents = fs::read_to_string(".snapr/config.json")
-        .unwrap_or_else(|_| "{}".to_string());
+    let file_path = ".snapr/config.json";
+    if !Path::new(file_path).exists() {
+        return Ok(SnaprConfig::new());
+    }
 
-    let config: SnaprConfig = serde_json::from_str(&contents)
-        .unwrap_or(SnaprConfig::new());
-
+    let config: SnaprConfig = serde_json::from_str(file_path)?;
     Ok(config)
 }
 
