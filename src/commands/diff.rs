@@ -1,8 +1,6 @@
 use crate::{commands::helpers::compare_snapshots, models::Snapshot};
 use std::error::Error;
 
-use super::{models::DiffResult, helpers::calculate_diff};
-
 pub fn handle_diff(snapshots: &[Snapshot], old_id: u32, new_id: u32) -> Result<(), Box<dyn Error>> {
     if old_id == 0 || new_id == 0 {
         return Err("Snapshot ids start at 1".into());

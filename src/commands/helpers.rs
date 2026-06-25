@@ -32,7 +32,7 @@ fn print_diff(diff: &DiffResult) {
     print_section("Removed", '-', &diff.removed);
 }
 
-pub(super) fn calculate_diff(old_snapshot: &Snapshot, new_snapshot: &Snapshot) -> DiffResult {
+fn calculate_diff(old_snapshot: &Snapshot, new_snapshot: &Snapshot) -> DiffResult {
     let old_map = old_snapshot
         .files
         .iter()
