@@ -1,5 +1,5 @@
 use std::{fs, error::Error};
-use crate::{config::{load_config, save_config}, models::{FileEntry, Snapshot, StoreReport, compression}};
+use crate::{config::{load_config, save_config}, models::{FileEntry, Snapshot, StoreReport}};
 
 pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String, entries: Vec<FileEntry>) -> Result<(), Box<dyn Error>>{
     let mut config = load_config()?;
