@@ -5,7 +5,7 @@ pub enum CompressionType {
     Zstd = 1,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FileEntry {
     pub hash: String,
     pub path: String,

@@ -3,6 +3,7 @@ use crate::filesystem::{build_entries, restore_file};
 use crate::hash::hash_file_bytes;
 use crate::models::{FileEntry, Snapshot};
 
+use std::collections::HashSet;
 use std::{error::Error, fs};
 
 pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Box<dyn Error>> {
@@ -24,7 +25,7 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
     let mut skipped = 0;
     let mut removed = 0;
 
-    ///TODO: Move all this to using DiffResult
+    //TODO: Move all this to using DiffResult
     for FileEntry { path, hash } in snapshot.files.iter() {
         let object_path = format!(".snapr/objects/{}", hash);
         if let Some(current) = fs::read(path).ok() {
@@ -46,9 +47,11 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
         }
     }
 
-    for entry in snapshot.files.iter() {
-        if !current_workspace.files.contains(entry) {
-            fs::remove_file(&entry.path)?;
+    let current_paths = current_workspace.files.iter().map(|f| f.path.as_str()).collect::<HashSet<&str>>();
+
+    for entry in current_paths {
+        if !snapshot.files.iter().any(|f| f.path == entry) {
+            fs::remove_file(entry)?;
             removed += 1;
         }
     }

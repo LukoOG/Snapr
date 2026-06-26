@@ -103,8 +103,3 @@ pub fn restore_file(path: &str, object_path: &str) -> Result<(), Box<dyn Error>>
     fs::write(path, contents)?;
     Ok(())
 }
-
-pub fn remove_file(path: &str) -> Result<bool, Box<dyn Error>> {
-
-    Ok(true)
-}
