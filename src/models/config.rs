@@ -1,42 +1,9 @@
-use serde::{Deserialize, Serialize};
-#[repr(u8)]
-pub enum CompressionType {
-    None = 0,
-    Zstd = 1,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FileEntry {
-    pub hash: String,
-    pub path: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Snapshot {
-    pub id: u32,
-    pub message: String,
-    pub files: Vec<FileEntry>,
-}
+use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SnaprConfig {
     version: u32,
     pub current_snapshot: Option<u32>,
-}
-
-pub struct ObjectStoreResult {
-
-}
-
-impl Snapshot {
-    //Only the files field is actually needed
-    pub fn build_workspace(entries: Vec<FileEntry>) -> Self {
-        Self {
-            id: 0,
-            message: "current workspace".into(),
-            files: entries
-        }
-    }
 }
 
 impl SnaprConfig {

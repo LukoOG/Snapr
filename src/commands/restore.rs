@@ -1,6 +1,7 @@
 use super::helpers::calculate_diff;
 use crate::config::{load_config, save_config};
-use crate::filesystem::{build_entries, restore_file};
+use crate::workspace::build_entries;
+use crate::storage::restore_object;
 use crate::models::{Snapshot};
 
 use std::collections::{HashMap};
@@ -30,7 +31,7 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
     for path in diff.added.iter().chain(diff.modified.iter()) {
         let hash = target_map.get(path.as_str()).ok_or("Missing file in shapshot")?;
         let object_path = format!(".snapr/objects/{}", *hash);
-        restore_file(path, &object_path)?;
+        restore_object(path, &object_path)?;
     }
 
     let restored = diff.added.len() + diff.modified.len();
