@@ -1,8 +1,10 @@
+type FilePath = String;
+
 #[derive(Debug)]
 pub(super) struct DiffResult {
-    pub added: Vec<String>,
-    pub modified: Vec<String>,
-    pub removed: Vec<String>,
+    pub added: Vec<FilePath>,
+    pub modified: Vec<FilePath>,
+    pub removed: Vec<FilePath>,
 }
 
 impl Default for DiffResult {
