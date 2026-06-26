@@ -1,22 +1,9 @@
 use crate::config::{load_config, save_config};
+use crate::filesystem::restore_file;
 use crate::hash::hash_file_bytes;
-use crate::models::FileEntry;
-use crate::models::Snapshot;
+use crate::models::{FileEntry, Snapshot};
 
-use std::error::Error;
-use std::fs;
-use std::path::Path;
-
-fn restore_file(path: &str, object_path: &str) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read(object_path).map_err(|_| format!("Missing object: {}", object_path))?;
-
-    if let Some(parent) = Path::new(path).parent() {
-        fs::create_dir_all(parent)?;
-    }
-
-    fs::write(path, contents)?;
-    Ok(())
-}
+use std::{error::Error, fs};
 
 pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Box<dyn Error>> {
     let mut config = load_config()?;

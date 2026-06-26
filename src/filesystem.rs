@@ -4,8 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 use walkdir::{DirEntry, WalkDir};
+use zstd::{decode_all, stream::encode_all};
 
-use crate::hash::{hash_and_get_contents};
+use crate::hash::hash_and_get_contents;
 use crate::models::FileEntry;
 
 fn should_skip(entry: &DirEntry) -> bool {
@@ -13,10 +14,7 @@ fn should_skip(entry: &DirEntry) -> bool {
 
     match entry.file_type() {
         t if t.is_dir() => {
-            matches!(
-                name,
-                Some(".git" | "target" | ".snapr")
-            )
+            matches!(name, Some(".git" | "target" | ".snapr"))
         }
         _ => {
             matches!(name, Some(".DS_Store"))
@@ -41,14 +39,16 @@ pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
 }
 
 pub fn store_object(hash: &str, contents: &[u8]) -> Result<bool, Box<dyn Error>> {
-    debug_assert_eq!(hash.len(), 64);
+    if hash.len() != 64 {
+        return Err("invalid sha256 hash".into());
+    }
     let path = format!(".snapr/objects/{}", hash);
-    let file_exists = Path::new(&path).exists();
 
-    if file_exists {
+    if Path::new(&path).exists() {
         return Ok(false);
     }
-    fs::write(path, contents)?;
+    let compressed = encode_all(contents, 3)?;
+    fs::write(path, compressed)?;
     Ok(true)
 }
 
@@ -66,4 +66,17 @@ pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
         }
     };
     Ok(entries)
+}
+
+pub fn restore_file(path: &str, object_path: &str) -> Result<(), Box<dyn Error>> {
+    let compressed =
+        fs::read(object_path).map_err(|_| format!("Missing object: {}", object_path))?;
+    let contents = decode_all(&compressed[..])?;
+
+    if let Some(parent) = Path::new(path).parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    fs::write(path, contents)?;
+    Ok(())
 }
