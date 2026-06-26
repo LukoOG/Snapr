@@ -12,7 +12,7 @@ pub struct StoreReport {
     pub new_objects: usize,
     pub reused_objects: usize,
     pub original_bytes: usize,
-    pub compressed_bytes: usize,
+    pub new_storage_bytes: usize,
 }
 
 impl StoreReport {
@@ -22,7 +22,7 @@ impl StoreReport {
 
         if record.stored {
             self.new_objects += 1;
-            self.compressed_bytes += record.compressed_size;
+            self.new_storage_bytes += record.compressed_size;
         } else {
             self.reused_objects += 1;
         }

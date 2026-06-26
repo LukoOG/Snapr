@@ -16,7 +16,7 @@ use commands::{
 use workspace::build_entries;
 use storage::load_snapshots;
 
-use crate::workspace::build_and_store_entries;
+use crate::{commands::save::print_save_report, workspace::build_and_store_entries};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
@@ -32,6 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
             let (entries, report) = build_and_store_entries()?;
+            print_save_report(0, &message, &report);
             handle_save(&mut snapshots, message, entries)
         }
         Command::Diff(old, new) => {
