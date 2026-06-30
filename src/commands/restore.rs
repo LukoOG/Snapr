@@ -25,7 +25,6 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
 
     for path in &diff.removed {
         fs::remove_file(path)?;
-        println!("removed")
     }
 
     for path in diff.added.iter().chain(diff.modified.iter()) {
