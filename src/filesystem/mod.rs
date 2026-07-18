@@ -1,9 +1,8 @@
 pub mod collect;
-pub mod hash;
+pub(super) mod hash;
 pub mod chunk_reader;
-pub mod builder;
+pub mod compress;
 
 pub use collect::*;
-pub use hash::*;
 pub use chunk_reader::*;
-pub use builder::*;
+pub use compress::*;

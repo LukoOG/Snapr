@@ -9,9 +9,25 @@ pub struct Chunk {
     pub bytes: Vec<u8>,
 }
 
+#[derive(Debug)]
+pub struct HashedChunk {
+    pub index: usize,
+    pub hash: String,
+    pub bytes: Vec<u8>,
+}
+
+#[derive(Debug)]
+pub struct CompressedChunk {
+    pub index: usize,
+    pub hash: String,
+    pub compressed: Vec<u8>,
+    pub original_size: usize,
+}
+
 pub struct ChunkReader<R> {
     reader: BufReader<R>,
     chunk_size: usize,
+    next_index: usize,
 }
 
 impl Chunk {
@@ -24,15 +40,26 @@ impl Chunk {
     }
 }
 
+impl HashedChunk {
+    pub fn from_chunk(chunk: Chunk, hash: String) -> Self {
+        HashedChunk {
+            index: chunk.index,
+            hash,
+            bytes: chunk.bytes,
+        }
+    }
+}
+
 impl <R: Read> ChunkReader<R> {
     pub fn new(reader: R, chunk_size: usize) -> Self {
         ChunkReader {
             reader: BufReader::new(reader),
             chunk_size,
+            next_index: 0,
         }
     }
 
-    pub fn next_chunk(&mut self) -> io::Result<Option<Vec<u8>>> {
+    pub fn next_chunk(&mut self) -> io::Result<Option<Chunk>> {
         let mut buffer = vec![0; self.chunk_size];
         let bytes_read = self.reader.read(&mut buffer)?;
 
@@ -41,7 +68,12 @@ impl <R: Read> ChunkReader<R> {
         if bytes_read == 0 {
             Ok(None)
         } else {
-            Ok(Some(buffer))
+            let chunk = Chunk {
+                index: self.next_index,
+                bytes: buffer.clone(),
+            };
+            self.next_index += 1;
+            Ok(Some(chunk))
         }
     }
 }

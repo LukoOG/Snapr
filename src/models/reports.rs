@@ -5,6 +5,8 @@ pub struct StoreResult {
     pub stored: bool,
     pub original_size: usize,
     pub compressed_size: usize,
+    //To aid in builder pipeline
+    pub hash: String,
 }
 
 #[derive(Default)]

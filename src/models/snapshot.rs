@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileEntry {
     pub path: String,
-    pub object_hash: String,
+    pub chunk_hashes: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,7 +25,7 @@ impl Snapshot {
 }
 
 impl FileEntry {
-    pub fn build(path: String, object_hash: String) -> Self {
-        FileEntry { path, object_hash }
+    pub fn build(path: String, hashes: Vec<String>) -> Self {
+        FileEntry { path, chunk_hashes: hashes }
     }
 }
