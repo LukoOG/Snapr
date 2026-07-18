@@ -1,7 +1,7 @@
 use crate::filesystem::compress_chunk;
 use crate::filesystem::{collect::collect_files, hash::hash_chunk};
-use crate::models::{Chunk, ChunkReader};
-use crate::models::{DEFAULT_CHUNK_SIZE, FileEntry, FileStoreReport};
+use crate::models::{ChunkReader, FileEntry, FileProcessResult, FileStoreReport};
+use crate::models::{DEFAULT_CHUNK_SIZE, StoreReport};
 use crate::storage::{store_chunk};
 use std::{error::Error, fs::File, path::Path};
 
@@ -18,11 +18,11 @@ fn hash_file_chunks(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(chunk_hashes)
 }
 
-fn store_file_chunks(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
+fn store_file_chunks(path: &Path) -> Result<FileProcessResult, Box<dyn Error>> {
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
-    let mut report = FileStoreReport::default();
     let mut chunk_hashes = Vec::new();
+    let mut report = FileStoreReport::default();
 
     while let Some(chunk) = chunk_reader.next_chunk()? {
         let hashed = hash_chunk(chunk)?;
@@ -32,7 +32,7 @@ fn store_file_chunks(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
         chunk_hashes.push(stored.hash);
     }
 
-    Ok(chunk_hashes)
+    Ok(FileProcessResult { chunk_hashes, report })
 }
 
 pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
@@ -51,11 +51,13 @@ pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
 pub fn build_snapshot_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
     let files = collect_files()?;
     let mut entries: Vec<FileEntry> = Vec::new();
+    let mut report = StoreReport::default();
     {
         for file in files {
-            let hashes = store_file_chunks(&file)?;
+            let result = store_file_chunks(&file)?;
 
-            entries.push(FileEntry::build(file.to_string_lossy().to_string(), hashes));
+            report.merge(&result.report);
+            entries.push(FileEntry::build(file.to_string_lossy().to_string(), result.chunk_hashes));
         }
     };
     Ok(entries)

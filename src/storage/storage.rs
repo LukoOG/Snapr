@@ -1,5 +1,6 @@
 use crate::{
-    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, OBJECTS_DIR}, models::{CompressedChunk, CompressionType, Snapshot, StoreResult},
+    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, OBJECTS_DIR},
+    models::{CompressedChunk, CompressionType, Snapshot, ChunkStoreResult},
 };
 use std::{error::Error, fs, path::Path};
 use zstd::{decode_all, encode_all};
@@ -16,11 +17,11 @@ pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
     Ok(parsed)
 }
 
-pub fn store_chunk(chunk: CompressedChunk) -> Result<StoreResult, Box<dyn Error>> {
+pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn Error>> {
     let path = format!("{}/{}", OBJECTS_DIR, chunk.hash);
 
     if Path::new(&path).exists() {
-        return Ok(StoreResult {
+        return Ok(ChunkStoreResult {
             hash: chunk.hash,
             stored: false,
             original_size: chunk.original_size,
@@ -30,7 +31,7 @@ pub fn store_chunk(chunk: CompressedChunk) -> Result<StoreResult, Box<dyn Error>
 
     fs::write(path, &chunk.compressed)?;
 
-    Ok(StoreResult {
+    Ok(ChunkStoreResult {
         hash: chunk.hash,
         stored: true,
         original_size: chunk.original_size,

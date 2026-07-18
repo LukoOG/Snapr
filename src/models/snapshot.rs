@@ -6,6 +6,12 @@ pub struct FileEntry {
     pub chunk_hashes: Vec<String>,
 }
 
+// #[derive(Debug)]
+// pub struct FileSnapshot {
+//     pub chunk_hashes: Vec<String>,
+//     pub report: FileStoreReport,
+// }
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Snapshot {
     pub id: u32,
@@ -26,6 +32,9 @@ impl Snapshot {
 
 impl FileEntry {
     pub fn build(path: String, hashes: Vec<String>) -> Self {
-        FileEntry { path, chunk_hashes: hashes }
+        FileEntry {
+            path,
+            chunk_hashes: hashes,
+        }
     }
 }
