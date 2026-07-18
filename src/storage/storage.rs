@@ -1,6 +1,5 @@
 use crate::{
-    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, VERSION_1},
-    models::{CompressionType, Snapshot, StoreResult},
+    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, OBJECTS_DIR}, models::{CompressedChunk, CompressionType, Snapshot, StoreResult},
 };
 use std::{error::Error, fs, path::Path};
 use zstd::{decode_all, encode_all};
@@ -17,33 +16,25 @@ pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
     Ok(parsed)
 }
 
-pub fn store_object(hash: &str, contents: &[u8]) -> Result<StoreResult, Box<dyn Error>> {
-    if hash.len() != 64 {
-        return Err("invalid sha256 hash".into());
-    }
-    let path = format!(".snapr/objects/{}", hash);
+pub fn store_chunk(chunk: CompressedChunk) -> Result<StoreResult, Box<dyn Error>> {
+    let path = format!("{}/{}", OBJECTS_DIR, chunk.hash);
 
     if Path::new(&path).exists() {
         return Ok(StoreResult {
+            hash: chunk.hash,
             stored: false,
-            original_size: contents.len(),
-            compressed_size: 0,
+            original_size: chunk.original_size,
+            compressed_size: chunk.compressed.len(),
         });
     }
-    let compressed = encode_all(contents, 3)?;
-    let mut object = Vec::<u8>::with_capacity(HEADER_SIZE + compressed.len());
-    object.extend_from_slice(MAGIC);
-    object.push(VERSION_1);
-    object.push(FLAG_NONE);
-    object.push(CompressionType::Zstd as u8);
-    object.extend_from_slice(&(contents.len()).to_le_bytes());
-    object.extend_from_slice(&compressed);
 
-    fs::write(path, object)?;
+    fs::write(path, &chunk.compressed)?;
+
     Ok(StoreResult {
+        hash: chunk.hash,
         stored: true,
-        original_size: contents.len(),
-        compressed_size: compressed.len(),
+        original_size: chunk.original_size,
+        compressed_size: chunk.compressed.len(),
     })
 }
 

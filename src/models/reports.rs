@@ -10,7 +10,7 @@ pub struct StoreResult {
 }
 
 #[derive(Default)]
-pub struct StoreReport {
+pub struct FileStoreReport {
     pub total_files: usize,
     pub new_objects: usize,
     pub reused_objects: usize,
@@ -18,7 +18,7 @@ pub struct StoreReport {
     pub new_storage_bytes: usize,
 }
 
-impl StoreReport {
+impl FileStoreReport {
     pub fn record(&mut self, record: &StoreResult) {
         self.total_files += 1;
         self.original_bytes += record.original_size;
