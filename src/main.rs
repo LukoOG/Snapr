@@ -8,6 +8,7 @@ mod storage;
 mod filesystem;
 mod constants;
 mod snapshot;
+mod ui;
 
 use cli::parse_args;
 use commands::{
@@ -29,8 +30,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
-            let entries = build_snapshot_entries()?;
-            handle_save(&mut snapshots, message, entries)
+            let (entries, report) = build_snapshot_entries()?;
+            handle_save(&mut snapshots, message, entries)?;
+            ui::print_save_report(snapshots.last().unwrap().id, &snapshots.last().unwrap().message, &report);
+            Ok(())
         }
         Command::Diff(old, new) => {
             let snapshots = load_snapshots()?;

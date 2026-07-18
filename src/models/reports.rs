@@ -77,4 +77,13 @@ impl StoreReport {
 
         self.reused_chunks as f64 / self.total_chunks as f64
     }
+
+    #[inline]
+    pub fn compression_ratio(&self) -> f64 {
+        if self.original_bytes > 0 {
+            100.0 * (1.0 - self.new_storage_bytes as f64 / self.original_bytes as f64)
+        } else {
+            0.0
+        }
+    }
 }

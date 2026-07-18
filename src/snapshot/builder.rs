@@ -48,7 +48,7 @@ pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
     Ok(entries)
 }
 
-pub fn build_snapshot_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
+pub fn build_snapshot_entries() -> Result<(Vec<FileEntry>, StoreReport), Box<dyn Error>> {
     let files = collect_files()?;
     let mut entries: Vec<FileEntry> = Vec::new();
     let mut report = StoreReport::default();
@@ -60,5 +60,5 @@ pub fn build_snapshot_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
             entries.push(FileEntry::build(file.to_string_lossy().to_string(), result.chunk_hashes));
         }
     };
-    Ok(entries)
+    Ok((entries, report))
 }
