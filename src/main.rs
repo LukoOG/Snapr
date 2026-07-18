@@ -3,20 +3,19 @@ use std::{env, error::Error};
 mod cli;
 mod commands;
 mod config;
-mod workspace;
-mod hash;
 mod models;
 mod storage;
+mod filesystem;
 mod constants;
 
 use cli::parse_args;
 use commands::{
     Command, diff::handle_diff, history::handle_history, init::handle_init, save::handle_save, restore::handle_restore, status::handle_status
 };
-use workspace::build_entries;
+use filesystem::{build_entries, build_and_store_entries};
 use storage::load_snapshots;
 
-use crate::{commands::save::print_save_report, workspace::build_and_store_entries};
+use crate::{commands::save::print_save_report};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();

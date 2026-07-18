@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileEntry {
     pub path: String,
-    pub hash: String,
+    pub object_hash: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,7 +25,7 @@ impl Snapshot {
 }
 
 impl FileEntry {
-    pub fn build(path: String, hash: String) -> Self {
-        FileEntry { path, hash}
+    pub fn build(path: String, object_hash: String) -> Self {
+        FileEntry { path, object_hash }
     }
 }

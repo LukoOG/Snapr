@@ -36,12 +36,12 @@ pub(super) fn calculate_diff(from: &Snapshot, to: &Snapshot) -> DiffResult {
     let source = from
         .files
         .iter()
-        .map(|FileEntry { hash, path }| (path.clone(), hash.clone()))
+        .map(|FileEntry { object_hash, path }| (path.clone(), object_hash.clone()))
         .collect::<HashMap<String, String>>();
     let target = to
         .files
         .iter()
-        .map(|FileEntry { hash, path }| (path.clone(), hash.clone()))
+        .map(|FileEntry { object_hash, path }| (path.clone(), object_hash.clone()))
         .collect::<HashMap<String, String>>();
 
     let mut result = DiffResult::default();
@@ -69,8 +69,8 @@ pub(super) fn calculate_diff(from: &Snapshot, to: &Snapshot) -> DiffResult {
     result
 }
 
-pub(super) fn compare_snapshots(left: &Snapshot, right: &Snapshot, title: &str) {
-    let diff = calculate_diff(left, right);
+pub(super) fn compare_snapshots(from: &Snapshot, to: &Snapshot, title: &str) {
+    let diff = calculate_diff(from, to);
     println!("{}", title);
     print_diff(&diff);
 }
