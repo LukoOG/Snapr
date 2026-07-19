@@ -12,7 +12,7 @@ pub struct FileStoreReport {
 }
 
 #[derive(Default)]
-pub struct StoreReport {
+pub struct WorkspaceStoreReport {
     pub total_files: usize,
 
     pub total_chunks: usize,
@@ -37,7 +37,7 @@ impl FileStoreReport {
     }
 }
 
-impl StoreReport {
+impl WorkspaceStoreReport {
     pub fn merge(&mut self, file: &FileStoreReport) {
         self.total_files += 1;
 

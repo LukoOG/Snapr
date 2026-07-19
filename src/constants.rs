@@ -9,10 +9,12 @@ pub const FLAG_NONE: u8 = 0;
 pub const HEADER_SIZE: usize = 16;
 
 //directories and files
+#[allow(unused)]
 pub const SNAPR_DIR: &str = ".snapr";
 
 pub const OBJECTS_DIR: &str = ".snapr/objects";
 
+#[allow(unused)]
 pub const SNAPSHOTS_FILE: &str = ".snapr/snapshots.json";
-
+#[allow(unused)]
 pub const CONFIG_FILE: &str = ".snapr/config.json";

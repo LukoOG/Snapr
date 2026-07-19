@@ -1,7 +1,7 @@
 use crate::filesystem::compress_chunk;
 use crate::filesystem::{collect::collect_files, hash::hash_chunk};
 use crate::models::{ChunkReader, FileEntry, FileProcessResult, FileStoreReport};
-use crate::models::{DEFAULT_CHUNK_SIZE, StoreReport};
+use crate::models::{DEFAULT_CHUNK_SIZE, WorkspaceStoreReport};
 use crate::storage::{store_chunk};
 use std::{error::Error, fs::File, path::Path};
 
@@ -48,10 +48,10 @@ pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
     Ok(entries)
 }
 
-pub fn build_snapshot_entries() -> Result<(Vec<FileEntry>, StoreReport), Box<dyn Error>> {
+pub fn build_snapshot_entries() -> Result<(Vec<FileEntry>, WorkspaceStoreReport), Box<dyn Error>> {
     let files = collect_files()?;
     let mut entries: Vec<FileEntry> = Vec::new();
-    let mut report = StoreReport::default();
+    let mut report = WorkspaceStoreReport::default();
     {
         for file in files {
             let result = store_file_chunks(&file)?;

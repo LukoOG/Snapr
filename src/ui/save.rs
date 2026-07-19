@@ -1,10 +1,10 @@
-use crate::models::StoreReport;
+use crate::models::WorkspaceStoreReport;
 use super::format_bytes;
 
 pub fn print_save_report(
     snapshot_id: u32,
     message: &str,
-    report: &StoreReport,
+    report: &WorkspaceStoreReport,
 ) {
     println!("✓ Snapshot {} created", snapshot_id);
     println!("  \"{}\"", message);
