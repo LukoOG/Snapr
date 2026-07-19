@@ -1,11 +1,7 @@
-use crate::models::WorkspaceStoreReport;
 use super::format_bytes;
+use crate::models::WorkspaceStoreReport;
 
-pub fn print_save_report(
-    snapshot_id: u32,
-    message: &str,
-    report: &WorkspaceStoreReport,
-) {
+pub fn print_save_report(snapshot_id: u32, message: &str, report: &WorkspaceStoreReport) {
     println!("✓ Snapshot {} created", snapshot_id);
     println!("  \"{}\"", message);
 
@@ -14,16 +10,16 @@ pub fn print_save_report(
     println!("\nWorkspace");
     println!("  Files processed : {}", report.total_files);
     println!("  Chunks processed: {}", report.total_chunks);
-
-    println!("\nStorage");
-    println!("  New chunks      : {}", report.new_chunks);
-    println!("  Reused chunks   : {}", report.reused_chunks);
     println!(
         "  Workspace size  : {}",
         format_bytes(report.original_bytes)
     );
+
+    println!("\nObject Store");
+    println!("  New chunks      : {}", report.new_chunks);
+    println!("  Reused chunks   : {}", report.reused_chunks);
     println!(
-        "  New storage     : {}",
+        "  Additional Storage : {}",
         format_bytes(report.new_storage_bytes)
     );
 
@@ -32,10 +28,7 @@ pub fn print_save_report(
         "  Chunk reuse     : {:.2}%",
         report.deduplication_ratio() * 100.0
     );
-    println!(
-        "  Compression     : {:.2}%",
-        report.compression_ratio() * 100.0
-    );
+    println!("  Compression saved : {:.2}%", report.compression_ratio());
 
     println!("\nSnapshot complete 📸.");
 }

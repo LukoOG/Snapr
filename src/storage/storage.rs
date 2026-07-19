@@ -39,9 +39,12 @@ pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn E
     })
 }
 
-pub fn restore_chunk(hash: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+pub fn read_chunk(hash: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let object_path = format!("{}/{}", OBJECTS_DIR, hash);
     let object = fs::read(&object_path).map_err(|_| format!("Missing object: {}", object_path))?;
+    if object.len() < HEADER_SIZE {
+        return Err("Object header is truncated".into());
+    }
     if &object[..5] != MAGIC {
         return Err("invalid object".into());
     }

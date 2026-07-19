@@ -1,4 +1,4 @@
-use crate::storage::restore_chunk;
+use crate::storage::read_chunk;
 use std::{fs::{self, File}, io::Write, path::Path};
 
 pub fn restore_file(path: &str, hashes: &[String]) -> Result<(), Box<dyn std::error::Error>> {
@@ -7,8 +7,8 @@ pub fn restore_file(path: &str, hashes: &[String]) -> Result<(), Box<dyn std::er
     };
     let mut file = File::create(path)?;
     for hash in hashes {
-        let chunk = restore_chunk(hash)?;
-        // Process the restored chunk
+        let chunk = read_chunk(hash)?;
+        // Later: Turn this into streaming
         file.write_all(&chunk)?;
     }
     Ok(())
