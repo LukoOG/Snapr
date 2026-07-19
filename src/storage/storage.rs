@@ -25,17 +25,17 @@ pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn E
             hash: chunk.hash,
             stored: false,
             original_size: chunk.original_size,
-            compressed_size: chunk.compressed.len(),
+            compressed_size: chunk.compressed_bytes.len(),
         });
     }
 
-    fs::write(path, &chunk.compressed)?;
+    fs::write(path, &chunk.compressed_bytes)?;
 
     Ok(ChunkStoreResult {
         hash: chunk.hash,
         stored: true,
         original_size: chunk.original_size,
-        compressed_size: chunk.compressed.len(),
+        compressed_size: chunk.compressed_bytes.len(),
     })
 }
 

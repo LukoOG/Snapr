@@ -20,7 +20,7 @@ pub struct HashedChunk {
 pub struct CompressedChunk {
     pub index: usize,
     pub hash: String,
-    pub compressed: Vec<u8>,
+    pub compressed_bytes: Vec<u8>,
     pub original_size: usize,
 }
 
@@ -70,7 +70,7 @@ impl <R: Read> ChunkReader<R> {
         } else {
             let chunk = Chunk {
                 index: self.next_index,
-                bytes: buffer.clone(),
+                bytes: buffer,
             };
             self.next_index += 1;
             Ok(Some(chunk))

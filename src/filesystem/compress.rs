@@ -1,9 +1,8 @@
 use crate::{
     constants::{FLAG_NONE, HEADER_SIZE, MAGIC, VERSION_1},
-    models::{CompressedChunk, CompressionType, HashedChunk, Snapshot, StoreResult},
+    models::{CompressedChunk, CompressionType, HashedChunk},
 };
-use std::{error::Error, fs, path::Path};
-use zstd::{decode_all, encode_all};
+use zstd::{encode_all};
 
 pub fn compress_chunk(chunk: HashedChunk) -> Result<CompressedChunk, Box<dyn std::error::Error>> {
     if chunk.bytes.len() != 64 {
@@ -21,7 +20,7 @@ pub fn compress_chunk(chunk: HashedChunk) -> Result<CompressedChunk, Box<dyn std
     Ok(CompressedChunk {
         index: chunk.index,
         hash: chunk.hash,
-        compressed: object,
+        compressed_bytes: object,
         original_size: chunk.bytes.len(),
     })
 }

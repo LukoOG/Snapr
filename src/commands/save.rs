@@ -1,9 +1,16 @@
-use std::{fs, error::Error};
-use crate::{config::{load_config, save_config}, models::{FileEntry, Snapshot, StoreReport}};
+use crate::{
+    config::{load_config, save_config},
+    models::{FileEntry, Snapshot},
+};
+use std::{error::Error, fs};
 
-pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String, entries: Vec<FileEntry>) -> Result<(), Box<dyn Error>>{
+pub fn handle_save(
+    snapshots: &mut Vec<Snapshot>,
+    message: String,
+    entries: Vec<FileEntry>,
+) -> Result<(), Box<dyn Error>> {
     let mut config = load_config()?;
-    let next_id =  snapshots.iter().map(|s| s.id).max().unwrap_or(0) + 1;
+    let next_id = snapshots.iter().map(|s| s.id).max().unwrap_or(0) + 1;
     let new_snapshot = Snapshot {
         id: next_id,
         message,
