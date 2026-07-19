@@ -20,7 +20,7 @@ pub struct HashedChunk {
 pub struct CompressedChunk {
     pub index: usize,
     pub hash: String,
-    pub compressed_bytes: Vec<u8>,
+    pub object_bytes: Vec<u8>,
     pub original_size: usize,
 }
 

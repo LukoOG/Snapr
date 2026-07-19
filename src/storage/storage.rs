@@ -1,9 +1,9 @@
 use crate::{
-    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, OBJECTS_DIR},
-    models::{CompressedChunk, CompressionType, Snapshot, ChunkStoreResult},
+    constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR},
+    models::{ChunkStoreResult, CompressedChunk, Snapshot},
 };
 use std::{error::Error, fs, path::Path};
-use zstd::{decode_all, encode_all};
+use zstd::decode_all;
 
 pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
     let contents = fs::read_to_string(".snapr/snapshots.json").map_err(|e| {
@@ -25,22 +25,23 @@ pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn E
             hash: chunk.hash,
             stored: false,
             original_size: chunk.original_size,
-            compressed_size: chunk.compressed_bytes.len(),
+            compressed_size: chunk.object_bytes.len(),
         });
     }
 
-    fs::write(path, &chunk.compressed_bytes)?;
+    fs::write(path, &chunk.object_bytes)?;
 
     Ok(ChunkStoreResult {
         hash: chunk.hash,
         stored: true,
         original_size: chunk.original_size,
-        compressed_size: chunk.compressed_bytes.len(),
+        compressed_size: chunk.object_bytes.len(),
     })
 }
 
-pub fn restore_object(path: &str, object_path: &str) -> Result<(), Box<dyn Error>> {
-    let object = fs::read(object_path).map_err(|_| format!("Missing object: {}", object_path))?;
+pub fn restore_chunk(hash: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+    let object_path = format!("{}/{}", OBJECTS_DIR, hash);
+    let object = fs::read(&object_path).map_err(|_| format!("Missing object: {}", object_path))?;
     if &object[..5] != MAGIC {
         return Err("invalid object".into());
     }
@@ -54,10 +55,5 @@ pub fn restore_object(path: &str, object_path: &str) -> Result<(), Box<dyn Error
     let compressed = &object[HEADER_SIZE..];
     let contents = decode_all(&compressed[..])?;
 
-    if let Some(parent) = Path::new(path).parent() {
-        fs::create_dir_all(parent)?;
-    }
-
-    fs::write(path, contents)?;
-    Ok(())
+    Ok(contents)
 }

@@ -7,14 +7,14 @@ mod models;
 mod storage;
 mod filesystem;
 mod constants;
-mod snapshot;
+mod processing;
 mod ui;
 
 use cli::parse_args;
 use commands::{
     Command, diff::handle_diff, history::handle_history, init::handle_init, save::handle_save, restore::handle_restore, status::handle_status
 };
-use snapshot::{build_entries, build_snapshot_entries};
+use processing::{build_entries, build_snapshot_entries};
 use storage::load_snapshots;
 
 fn main() -> Result<(), Box<dyn Error>> {

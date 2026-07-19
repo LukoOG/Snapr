@@ -5,7 +5,7 @@ use crate::{
 use zstd::{encode_all};
 
 pub fn compress_chunk(chunk: HashedChunk) -> Result<CompressedChunk, Box<dyn std::error::Error>> {
-    if chunk.bytes.len() != 64 {
+    if chunk.hash.len() != 64 {
         return Err("invalid sha256 hash".into());
     }
     let compressed = encode_all(&chunk.bytes[..], 3)?;
@@ -20,7 +20,7 @@ pub fn compress_chunk(chunk: HashedChunk) -> Result<CompressedChunk, Box<dyn std
     Ok(CompressedChunk {
         index: chunk.index,
         hash: chunk.hash,
-        compressed_bytes: object,
+        object_bytes: object,
         original_size: chunk.bytes.len(),
     })
 }

@@ -36,13 +36,13 @@ pub(super) fn calculate_diff(from: &Snapshot, to: &Snapshot) -> DiffResult {
     let source = from
         .files
         .iter()
-        .map(|FileEntry { object_hash, path }| (path.clone(), object_hash.clone()))
-        .collect::<HashMap<String, String>>();
+        .map(|FileEntry { chunk_hashes, path }| (path.clone(), chunk_hashes.clone()))
+        .collect::<HashMap<String, Vec<String>>>();
     let target = to
         .files
         .iter()
-        .map(|FileEntry { object_hash, path }| (path.clone(), object_hash.clone()))
-        .collect::<HashMap<String, String>>();
+        .map(|FileEntry { chunk_hashes, path }| (path.clone(), chunk_hashes.clone()))
+        .collect::<HashMap<String, Vec<String>>>();
 
     let mut result = DiffResult::default();
 
