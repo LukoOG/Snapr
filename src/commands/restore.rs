@@ -36,6 +36,7 @@ pub fn handle_restore(snapshots: &[Snapshot], snapshot_id: u32) -> Result<(), Bo
 
     for path in diff.added.iter().chain(diff.modified.iter()) {
         let hashes = target_map.get(path.as_str()).ok_or("Missing file in snapshot")?;
+        print!("Restoring {}... \n", path);
         restore_file(path, hashes)?;
     }
 
