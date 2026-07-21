@@ -1,11 +1,12 @@
 use crate::{
     constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR},
+    error::SnaprResult,
     models::{ChunkStoreResult, CompressedChunk, Snapshot},
 };
-use std::{error::Error, fs, path::Path};
+use std::{fs, path::Path};
 use zstd::decode_all;
 
-pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
+pub fn load_snapshots() -> SnaprResult<Vec<Snapshot>> {
     let contents = fs::read_to_string(".snapr/snapshots.json").map_err(|e| {
         if e.kind() == std::io::ErrorKind::NotFound {
             std::io::Error::new(std::io::ErrorKind::NotFound, "Snapr not initialized")
@@ -17,7 +18,7 @@ pub fn load_snapshots() -> Result<Vec<Snapshot>, Box<dyn Error>> {
     Ok(parsed)
 }
 
-pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn Error>> {
+pub fn store_chunk(chunk: CompressedChunk) -> SnaprResult<ChunkStoreResult> {
     let path = format!("{}/{}", OBJECTS_DIR, chunk.hash);
 
     if Path::new(&path).exists() {
@@ -39,7 +40,7 @@ pub fn store_chunk(chunk: CompressedChunk) -> Result<ChunkStoreResult, Box<dyn E
     })
 }
 
-pub fn read_chunk(hash: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+pub fn read_chunk(hash: &str) -> SnaprResult<Vec<u8>> {
     let object_path = format!("{}/{}", OBJECTS_DIR, hash);
     let object = fs::read(&object_path).map_err(|_| format!("Missing object: {}", object_path))?;
     if object.len() < HEADER_SIZE {

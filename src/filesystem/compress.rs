@@ -1,10 +1,9 @@
 use crate::{
-    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, VERSION_1},
-    models::{CompressedChunk, CompressionType, HashedChunk},
+    constants::{FLAG_NONE, HEADER_SIZE, MAGIC, VERSION_1}, error::SnaprResult, models::{CompressedChunk, CompressionType, HashedChunk},
 };
 use zstd::{encode_all};
 
-pub fn compress_chunk(chunk: HashedChunk) -> Result<CompressedChunk, Box<dyn std::error::Error>> {
+pub fn compress_chunk(chunk: HashedChunk) -> SnaprResult<CompressedChunk> {
     if chunk.hash.len() != 64 {
         return Err("invalid sha256 hash".into());
     }

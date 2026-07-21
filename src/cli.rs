@@ -1,4 +1,4 @@
-use std::{cmp, println};
+use std::{cmp};
 
 use crate::commands::{Command, models::RestoreOptions};
 

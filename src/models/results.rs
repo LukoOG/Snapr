@@ -1,6 +1,7 @@
 use super::reports::FileStoreReport;
 
 pub struct FileProcessResult {
+    pub path: std::path::PathBuf,
     pub chunk_hashes: Vec<String>,
     pub report: FileStoreReport,
 }

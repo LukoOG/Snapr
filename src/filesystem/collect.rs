@@ -2,6 +2,8 @@ use walkdir::{DirEntry, WalkDir};
 use std::path::PathBuf;
 use std::error::Error;
 
+use crate::error::SnaprResult;
+
 fn should_skip(entry: &DirEntry) -> bool {
     let name = entry.file_name().to_str();
 
@@ -15,7 +17,7 @@ fn should_skip(entry: &DirEntry) -> bool {
     }
 }
 
-pub fn collect_files() -> Result<Vec<PathBuf>, Box<dyn Error>> {
+pub fn collect_files() -> SnaprResult<Vec<PathBuf>> {
     let files = WalkDir::new(".")
         .into_iter()
         .filter_entry(|e| !should_skip(e))

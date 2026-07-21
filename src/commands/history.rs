@@ -1,8 +1,8 @@
 use std::error::Error;
 
-use crate::{config::load_config, models::Snapshot};
+use crate::{config::load_config, error::SnaprResult, models::Snapshot};
 
-pub fn handle_history(snapshots: &[Snapshot]) -> Result<(), Box<dyn Error>> {
+pub fn handle_history(snapshots: &[Snapshot]) -> SnaprResult<()> {
     let config = load_config()?;
     if snapshots.is_empty() {
         println!("No snapshots yet!");

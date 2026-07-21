@@ -1,11 +1,14 @@
+use rayon::prelude::*;
+
+use crate::error::SnaprResult;
 use crate::filesystem::compress_chunk;
 use crate::filesystem::{collect::collect_files, hash::hash_chunk};
 use crate::models::{ChunkReader, FileEntry, FileProcessResult, FileStoreReport};
 use crate::models::{DEFAULT_CHUNK_SIZE, WorkspaceStoreReport};
-use crate::storage::{store_chunk};
+use crate::storage::store_chunk;
 use std::{error::Error, fs::File, path::Path};
 
-fn hash_file_chunks(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
+fn hash_file_chunks(path: &Path) -> SnaprResult<Vec<String>> {
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
     let mut chunk_hashes = Vec::new();
@@ -18,7 +21,7 @@ fn hash_file_chunks(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(chunk_hashes)
 }
 
-fn store_file_chunks(path: &Path) -> Result<FileProcessResult, Box<dyn Error>> {
+fn process_file(path: &Path) -> SnaprResult<FileProcessResult> {
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
     let mut chunk_hashes = Vec::new();
@@ -32,10 +35,14 @@ fn store_file_chunks(path: &Path) -> Result<FileProcessResult, Box<dyn Error>> {
         chunk_hashes.push(stored.hash);
     }
 
-    Ok(FileProcessResult { chunk_hashes, report })
+    Ok(FileProcessResult {
+        path: path.to_path_buf(),
+        chunk_hashes,
+        report,
+    })
 }
 
-pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
+pub fn build_entries() -> SnaprResult<Vec<FileEntry>> {
     let files = collect_files()?;
     let mut entries: Vec<FileEntry> = Vec::new();
     {
@@ -48,16 +55,20 @@ pub fn build_entries() -> Result<Vec<FileEntry>, Box<dyn Error>> {
     Ok(entries)
 }
 
-pub fn build_snapshot_entries() -> Result<(Vec<FileEntry>, WorkspaceStoreReport), Box<dyn Error>> {
-    let files = collect_files()?;
+pub fn build_snapshot_entries() -> SnaprResult<(Vec<FileEntry>, WorkspaceStoreReport)> {
     let mut entries: Vec<FileEntry> = Vec::new();
     let mut report = WorkspaceStoreReport::default();
+    let results = collect_files()?
+        .par_iter()
+        .map(|file| process_file(&file))
+        .collect::<SnaprResult<Vec<_>>>()?;
     {
-        for file in files {
-            let result = store_file_chunks(&file)?;
-
+        for result in results {
             report.merge(&result.report);
-            entries.push(FileEntry::build(file.to_string_lossy().to_string(), result.chunk_hashes));
+            entries.push(FileEntry::build(
+                result.path.to_string_lossy().to_string(),
+                result.chunk_hashes,
+            ));
         }
     };
     Ok((entries, report))

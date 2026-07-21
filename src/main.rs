@@ -3,6 +3,7 @@ use std::{env, error::Error};
 mod cli;
 mod commands;
 mod config;
+mod error;
 mod models;
 mod storage;
 mod filesystem;
@@ -16,17 +17,19 @@ use commands::{
 };
 use processing::{build_entries};
 use storage::load_snapshots;
+use error::SnaprResult;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> SnaprResult<()> {
     let args: Vec<String> = env::args().collect();
 
     let command = parse_args(&args);
 
-    match command {
+    let _ = match command {
         Command::Init => handle_init(),
         Command::History => {
             let snapshots = load_snapshots()?;
-            handle_history(&snapshots)
+            handle_history(&snapshots)?;
+            Ok(())
         }
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
@@ -36,7 +39,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Command::Diff(old, new) => {
             let snapshots = load_snapshots()?;
-            handle_diff(&snapshots, old, new)
+            handle_diff(&snapshots, old, new)?;
+            Ok(())
         }
         Command::Restore(restore_options) => {
             let snapshots = load_snapshots()?;
@@ -51,8 +55,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         Command::Status => {
             let snapshots = load_snapshots()?;
             let entries = build_entries()?; //current workspace entries
-            handle_status(&snapshots, entries)
+            handle_status(&snapshots, entries)?;
+            Ok(())
         }
-    }?;
+    };
     Ok(())
 }

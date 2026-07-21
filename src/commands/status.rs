@@ -1,8 +1,7 @@
 use std::error::Error;
 
 use crate::{
-    config::load_config,
-    models::{FileEntry, Snapshot, WorkspaceSnapshot},
+    config::load_config, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceSnapshot},
 };
 use super::{helpers::compare_snapshots};
 
@@ -10,7 +9,7 @@ use super::{helpers::compare_snapshots};
 pub fn handle_status(
     snapshots: &[Snapshot],
     entries: Vec<FileEntry>,
-) -> Result<(), Box<dyn Error>> {
+) -> SnaprResult<()> {
     let config = load_config()?;
     let workspace_id = match config.current_snapshot {
         Some(id) => id,

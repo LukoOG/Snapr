@@ -1,7 +1,7 @@
-use crate::storage::read_chunk;
+use crate::{error::SnaprResult, storage::read_chunk};
 use std::{fs::{self, File}, io::Write, path::Path};
 
-pub fn restore_file(path: &str, hashes: &[String]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn restore_file(path: &str, hashes: &[String]) -> SnaprResult<()> {
     if let Some(parent) = Path::new(path).parent() {
         fs::create_dir_all(parent)?;
     };

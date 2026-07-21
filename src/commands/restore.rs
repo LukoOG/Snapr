@@ -1,6 +1,7 @@
 use super::helpers::calculate_diff;
 use crate::commands::models::RestoreOptions;
 use crate::config::{load_config, save_config};
+use crate::error::SnaprResult;
 use crate::filesystem::restore_file;
 use crate::models::{RestoreReport, Snapshot, WorkspaceSnapshot};
 use crate::processing::build_entries;
@@ -12,7 +13,7 @@ use std::{error::Error, fs};
 pub fn handle_restore(
     snapshots: &[Snapshot],
     options: RestoreOptions,
-) -> Result<RestoreReport, Box<dyn Error>> {
+) -> SnaprResult<RestoreReport> {
     let mut config = load_config()?;
     let RestoreOptions {
         snapshot_id,

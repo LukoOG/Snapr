@@ -1,9 +1,9 @@
 use crate::{
-    config::{load_config, save_config}, models::{FileEntry, Snapshot, WorkspaceStoreReport}, processing::build_snapshot_entries,
+    config::{load_config, save_config}, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceStoreReport}, processing::build_snapshot_entries,
 };
 use std::{error::Error, fs};
 
-pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> Result<WorkspaceStoreReport, Box<dyn Error>> {
+pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResult<WorkspaceStoreReport> {
     let mut config = load_config()?;
 
     let (entries, report) = build_snapshot_entries()?;
