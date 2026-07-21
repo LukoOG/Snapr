@@ -1,5 +1,5 @@
 #[inline]
-pub(super) fn format_bytes(bytes: usize) -> String {
+pub fn format_bytes(bytes: usize) -> String {
     const KB: usize = 1 << 10;
     const MB: usize = 1 << 20;
     const GB: usize = 1 << 30;

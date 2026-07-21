@@ -14,7 +14,7 @@ use cli::parse_args;
 use commands::{
     Command, diff::handle_diff, history::handle_history, init::handle_init, save::handle_save, restore::handle_restore, status::handle_status
 };
-use processing::{build_entries, build_snapshot_entries};
+use processing::{build_entries};
 use storage::load_snapshots;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -41,7 +41,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         Command::Restore(restore_options) => {
             let snapshots = load_snapshots()?;
             let report = handle_restore(&snapshots, restore_options)?;
-            ui::print_restore_report(snapshots.last().unwrap().id, &report);
+            if report.dry_run {
+                ui::print_restore_dry_run_report(snapshots.last().unwrap().id, &report);
+            } else {
+                ui::print_restore_report(snapshots.last().unwrap().id, &report);
+            }
             Ok(())
         }
         Command::Status => {

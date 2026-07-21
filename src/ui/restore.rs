@@ -1,5 +1,3 @@
-use std::println;
-
 use super::format_bytes;
 use crate::models::RestoreReport;
 
