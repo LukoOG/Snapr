@@ -1,6 +1,8 @@
 use sha2::{Digest, Sha256};
 
-use crate::{error::SnaprResult, models::{Chunk, HashedChunk}};
+use crate::{
+    error::SnaprResult, models::{Chunk, HashedChunk},
+};
 
 pub fn hash_chunk(chunk: Chunk) -> SnaprResult<HashedChunk> {
     let mut hasher = Sha256::new();

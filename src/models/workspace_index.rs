@@ -8,7 +8,7 @@ pub struct WorkspaceIndex {
     pub files: HashMap<FilePath, IndexedFile>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IndexedFile {
     pub modified: u64,
     pub size: u64,
