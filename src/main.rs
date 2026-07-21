@@ -1,5 +1,5 @@
-use std::{env, time::Instant};
-
+use std::{env};
+mod bench;
 mod cli;
 mod commands;
 mod config;
@@ -32,11 +32,10 @@ fn main() -> SnaprResult<()> {
             Ok(())
         }
         Command::Save { message } => {
+            scoped_timer!("Save pipeline");
             let mut snapshots = load_snapshots()?;
-            let start = Instant::now();
             let report = handle_save(&mut snapshots, message)?;
             ui::print_save_report(snapshots.last().unwrap().id, &snapshots.last().unwrap().message, &report);
-            println!("elapsed: {:?}", start.elapsed());
             Ok(())
         }
         Command::Diff(old, new) => {

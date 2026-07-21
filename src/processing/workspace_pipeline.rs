@@ -5,6 +5,7 @@ use crate::filesystem::compress_chunk;
 use crate::filesystem::{collect::collect_files, hash::hash_chunk};
 use crate::models::{ChunkReader, FileEntry, FileProcessResult, FileStoreReport};
 use crate::models::{DEFAULT_CHUNK_SIZE, WorkspaceStoreReport};
+use crate::scoped_timer;
 use crate::storage::store_chunk;
 use std::{fs::File, path::Path};
 
@@ -22,6 +23,7 @@ fn hash_file_chunks(path: &Path) -> SnaprResult<Vec<String>> {
 }
 
 fn process_file(path: &Path) -> SnaprResult<FileProcessResult> {
+    scoped_timer!("Process File: {path.display()} "); 
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
     let mut chunk_hashes = Vec::new();
