@@ -6,7 +6,7 @@ use crate::filesystem::{collect::collect_files, hash::hash_chunk};
 use crate::models::{ChunkReader, FileEntry, FileProcessResult, FileStoreReport};
 use crate::models::{DEFAULT_CHUNK_SIZE, WorkspaceStoreReport};
 use crate::storage::store_chunk;
-use std::{error::Error, fs::File, path::Path};
+use std::{fs::File, path::Path};
 
 fn hash_file_chunks(path: &Path) -> SnaprResult<Vec<String>> {
     let reader = File::open(path)?;

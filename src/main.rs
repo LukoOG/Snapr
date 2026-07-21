@@ -1,4 +1,4 @@
-use std::{env, error::Error};
+use std::{env, time::Instant};
 
 mod cli;
 mod commands;
@@ -33,8 +33,10 @@ fn main() -> SnaprResult<()> {
         }
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
+            let start = Instant::now();
             let report = handle_save(&mut snapshots, message)?;
             ui::print_save_report(snapshots.last().unwrap().id, &snapshots.last().unwrap().message, &report);
+            println!("elapsed: {:?}", start.elapsed());
             Ok(())
         }
         Command::Diff(old, new) => {
