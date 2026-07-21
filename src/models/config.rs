@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 pub struct SnaprConfig {
     version: u32,
     pub current_snapshot: Option<u32>,
+    pub repository_size: u64,
 }
 
 impl SnaprConfig {
@@ -11,12 +12,13 @@ impl SnaprConfig {
         SnaprConfig {
             version: 1,
             current_snapshot: None,
+            repository_size: 0,
         }
     }
 
-    // pub fn get_current_snapshot(&self) -> u32 {
-    //     self.current_snapshot.unwrap()
-    // }
+    pub fn update_repository_size(&mut self, size: u64) {
+        self.repository_size = size;
+    }
 
     pub fn update_current_snapshot(&mut self) {
         match self.current_snapshot {

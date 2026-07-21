@@ -30,8 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Command::Save { message } => {
             let mut snapshots = load_snapshots()?;
-            let (entries, report) = build_snapshot_entries()?;
-            handle_save(&mut snapshots, message, entries)?;
+            let report = handle_save(&mut snapshots, message)?;
             ui::print_save_report(snapshots.last().unwrap().id, &snapshots.last().unwrap().message, &report);
             Ok(())
         }
@@ -39,9 +38,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             let snapshots = load_snapshots()?;
             handle_diff(&snapshots, old, new)
         }
-        Command::Restore(snapshot_id) => {
+        Command::Restore(restore_options) => {
             let snapshots = load_snapshots()?;
-            handle_restore(&snapshots, snapshot_id)
+            let report = handle_restore(&snapshots, restore_options)?;
+            ui::print_restore_report(snapshots.last().unwrap().id, &report);
+            Ok(())
         }
         Command::Status => {
             let snapshots = load_snapshots()?;

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::models::DiffResult;
-use crate::models::{FileEntry, Snapshot};
+use crate::models::{FileEntry, SnapshotFiles};
 
 fn print_section(title: &str, symbol: char, entries: &[String]) {
     if entries.is_empty() {
@@ -32,33 +32,33 @@ fn print_diff(diff: &DiffResult) {
     print_section("Removed", '-', &diff.removed);
 }
 
-pub(super) fn calculate_diff(from: &Snapshot, to: &Snapshot) -> DiffResult {
+pub(super) fn calculate_diff<F: SnapshotFiles, T: SnapshotFiles>(from: &F, to: &T) -> DiffResult {
     let source = from
-        .files
+        .files()
         .iter()
-        .map(|FileEntry { chunk_hashes, path }| (path.clone(), chunk_hashes.clone()))
-        .collect::<HashMap<String, Vec<String>>>();
+        .map(|FileEntry { chunk_hashes, path }| (path.as_str(), chunk_hashes.as_slice()))
+        .collect::<HashMap<_, _>>();
     let target = to
-        .files
+        .files()
         .iter()
-        .map(|FileEntry { chunk_hashes, path }| (path.clone(), chunk_hashes.clone()))
-        .collect::<HashMap<String, Vec<String>>>();
+        .map(|FileEntry { chunk_hashes, path }| (path.as_str(), chunk_hashes.as_slice()))
+        .collect::<HashMap<_, _>>();
 
     let mut result = DiffResult::default();
 
     for (path, hash) in target.iter() {
         if let Some(old_hash) = source.get(path) {
             if hash != old_hash {
-                result.modified.push(path.clone());
+                result.modified.push((*path).to_owned());
             }
         } else {
-            result.added.push(path.clone())
+            result.added.push((*path).to_owned())
         }
     }
 
     for path in source.keys() {
         if !target.contains_key(path) {
-            result.removed.push(path.clone())
+            result.removed.push((*path).to_owned())
         }
     }
 
@@ -69,7 +69,7 @@ pub(super) fn calculate_diff(from: &Snapshot, to: &Snapshot) -> DiffResult {
     result
 }
 
-pub(super) fn compare_snapshots(from: &Snapshot, to: &Snapshot, title: &str) {
+pub(super) fn compare_snapshots<F: SnapshotFiles, T: SnapshotFiles>(from: &F, to: &T, title: &str) {
     let diff = calculate_diff(from, to);
     println!("{}", title);
     print_diff(&diff);

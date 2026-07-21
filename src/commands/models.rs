@@ -16,3 +16,9 @@ impl Default for DiffResult {
         }
     }
 }
+
+pub struct RestoreOptions {
+    pub snapshot_id: u32,
+    pub force: bool,
+    pub dry_run: bool,
+}

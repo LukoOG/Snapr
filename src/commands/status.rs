@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::{
     config::load_config,
-    models::{FileEntry, Snapshot},
+    models::{FileEntry, Snapshot, WorkspaceSnapshot},
 };
 use super::{helpers::compare_snapshots};
 
@@ -25,8 +25,8 @@ pub fn handle_status(
         .find(|s| s.id == workspace_id)
         .ok_or("Snapshot not found!")?;
 
-    let workspace = Snapshot::build_workspace(entries);
+    let workspace = WorkspaceSnapshot::build(entries);
 
-    compare_snapshots(&snapshot, &workspace, "Current Workspace Status");
+    compare_snapshots(snapshot, &workspace, "Current Workspace Status");
     Ok(())
 }

@@ -17,16 +17,37 @@ pub struct Snapshot {
     pub id: u32,
     pub message: String,
     pub files: Vec<FileEntry>,
+
+    //metadata
+    pub workspace_bytes: u64,
+    pub repository_bytes: u64,
+    pub chunk_count: u64,
 }
 
-impl Snapshot {
-    //Only the files field is actually needed
-    pub fn build_workspace(entries: Vec<FileEntry>) -> Self {
-        Self {
-            id: 0,
-            message: "current workspace".into(),
-            files: entries,
-        }
+#[derive(Debug)]
+pub struct WorkspaceSnapshot {
+    pub files: Vec<FileEntry>,
+}
+
+pub trait SnapshotFiles {
+    fn files(&self) -> &[FileEntry];
+}
+
+impl SnapshotFiles for Snapshot {
+    fn files(&self) -> &[FileEntry] {
+        &self.files
+    }
+}
+
+impl WorkspaceSnapshot {
+    pub fn build(entries: Vec<FileEntry>) -> Self {
+        Self { files: entries }
+    }
+}
+
+impl SnapshotFiles for WorkspaceSnapshot {
+    fn files(&self) -> &[FileEntry] {
+        &self.files
     }
 }
 

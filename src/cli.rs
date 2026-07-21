@@ -1,6 +1,6 @@
-use std::{cmp};
+use std::cmp;
 
-use crate::commands::Command;
+use crate::commands::{Command, models::RestoreOptions};
 
 fn parse_snapshot_id(args: &[String], index: usize, name: &str) -> u32 {
     args.get(index)
@@ -43,19 +43,25 @@ pub fn parse_args(args: &[String]) -> Command {
             Command::Diff(old_id, new_id)
         }
         "restore" => {
-            if let Some(id) = args.get(2) {
-                Command::Restore(id.parse::<u32>().expect("Enter a valid id"))
-            } else {
-                eprintln!("Id not provided!");
-                std::process::exit(1);
-            }
+            let snapshot_id = args
+                .get(2)
+                .expect("Provide snapshot id")
+                .parse::<u32>()
+                .expect("Snapshot id must be an integer");
+
+            let force = args.iter().any(|arg| arg == "--force");
+            let dry_run = args.iter().any(|arg| arg == "--dry-run");
+
+            Command::Restore(RestoreOptions {
+                snapshot_id,
+                force,
+                dry_run,
+            })
         }
-        "status" => {
-            Command::Status
-        }
+        "status" => Command::Status,
         _ => {
             eprintln!("Unknown Command!");
             std::process::exit(1)
-        },
+        }
     }
 }

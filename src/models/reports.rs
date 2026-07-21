@@ -67,3 +67,15 @@ impl WorkspaceStoreReport {
         }
     }
 }
+
+#[derive(Default)]
+pub struct RestoreReport {
+    pub snapshot_id: u32,
+
+    pub restored_files: usize,
+    pub removed_files: usize,
+    pub skipped_files: usize,
+
+    pub restored_bytes: u64,
+    pub dry_run: bool,
+}
