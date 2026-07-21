@@ -1,8 +1,8 @@
 use super::format_bytes;
 use crate::models::RestoreReport;
 
-pub fn print_restore_report(snapshot_id: u32, report: &RestoreReport) {
-    println!("✓ Restored snapshot {}", snapshot_id);
+pub fn print_restore_report(report: &RestoreReport) {
+    println!("✓ Restored snapshot {}", report.snapshot_id);
 
     println!("\n────────────────────────────────────────");
 

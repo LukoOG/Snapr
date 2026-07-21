@@ -41,13 +41,20 @@ pub fn handle_restore(
 
     let diff = calculate_diff(&current_workspace, target_snapshot);
 
+    let restored = diff.added.len() + diff.modified.len();
+    let removed = diff.removed.len();
+    let skipped = target_snapshot.files.len() - restored;
+
     if dry_run {
         return Ok(RestoreReport {
             snapshot_id,
-            dry_run,
-            ..Default::default()
+            restored_files: restored,
+            removed_files: removed,
+            skipped_files: skipped,
+            restored_bytes: 0,
+            dry_run: true,
         });
-    };
+    }
 
     let target_map = target_snapshot
         .files
@@ -65,10 +72,6 @@ pub fn handle_restore(
             .ok_or("Missing file in snapshot")?;
         restore_file(path, hashes)?;
     }
-
-    let restored = diff.added.len() + diff.modified.len();
-    let removed = diff.removed.len();
-    let skipped = target_snapshot.files.len() - restored;
 
     //config
     config.set_current_snapshot(snapshot_id);

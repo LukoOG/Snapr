@@ -44,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             if report.dry_run {
                 ui::print_restore_dry_run_report(snapshots.last().unwrap().id, &report);
             } else if !report.dry_run {
-                ui::print_restore_report(snapshots.last().unwrap().id, &report);
+                ui::print_restore_report(&report);
             }
             Ok(())
         }
