@@ -1,5 +1,5 @@
 use crate::{
-    config::load_config, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceSnapshot},
+    storage::load_config, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceSnapshot},
 };
 use super::{helpers::compare_snapshots};
 

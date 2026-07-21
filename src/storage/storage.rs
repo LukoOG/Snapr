@@ -1,22 +1,8 @@
 use crate::{
-    constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR},
-    error::SnaprResult,
-    models::{ChunkStoreResult, CompressedChunk, Snapshot},
+    constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR, SNAPSHOTS_FILE}, error::SnaprResult, models::{ChunkStoreResult, CompressedChunk, Snapshot},
 };
 use std::{fs, path::Path};
 use zstd::decode_all;
-
-pub fn load_snapshots() -> SnaprResult<Vec<Snapshot>> {
-    let contents = fs::read_to_string(".snapr/snapshots.json").map_err(|e| {
-        if e.kind() == std::io::ErrorKind::NotFound {
-            std::io::Error::new(std::io::ErrorKind::NotFound, "Snapr not initialized")
-        } else {
-            e
-        }
-    })?;
-    let parsed = serde_json::from_str(&contents)?;
-    Ok(parsed)
-}
 
 pub fn store_chunk(chunk: CompressedChunk) -> SnaprResult<ChunkStoreResult> {
     let path = format!("{}/{}", OBJECTS_DIR, chunk.hash);

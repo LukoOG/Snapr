@@ -3,6 +3,7 @@ pub mod config;
 pub mod reports;
 pub mod results;
 pub mod snapshot;
+pub mod workspace_index;
 #[allow(unused)]
 pub mod chunk;
 

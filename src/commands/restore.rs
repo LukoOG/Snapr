@@ -1,14 +1,14 @@
 use super::helpers::calculate_diff;
 use crate::commands::models::RestoreOptions;
-use crate::config::{load_config, save_config};
 use crate::error::SnaprResult;
 use crate::filesystem::restore_file;
 use crate::models::{RestoreReport, Snapshot, WorkspaceSnapshot};
 use crate::processing::build_entries;
+use crate::storage::{load_config, save_config};
 
 use std::collections::HashMap;
+use std::fs;
 use std::println;
-use std::{fs};
 
 pub fn handle_restore(
     snapshots: &[Snapshot],

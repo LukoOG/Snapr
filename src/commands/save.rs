@@ -1,5 +1,5 @@
 use crate::{
-    config::{load_config, save_config}, error::SnaprResult, models::{Snapshot, WorkspaceStoreReport}, processing::build_snapshot_entries,
+    storage::{load_config, save_config}, constants::SNAPSHOTS_FILE, error::SnaprResult, models::{Snapshot, WorkspaceStoreReport}, processing::build_snapshot_entries,
 };
 use std::{fs};
 
@@ -18,7 +18,7 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
     };
     snapshots.push(new_snapshot);
     let json = serde_json::to_string_pretty(snapshots)?;
-    fs::write(".snapr/snapshots.json", json)?;
+    fs::write(SNAPSHOTS_FILE, json)?;
 
     //config
     config.update_current_snapshot();

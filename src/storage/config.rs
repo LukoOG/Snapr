@@ -1,8 +1,8 @@
-use crate::{error::SnaprResult, models::SnaprConfig};
+use crate::{constants::CONFIG_FILE, error::SnaprResult, models::SnaprConfig};
 use std::{fs, path::Path};
 
 pub fn load_config() -> SnaprResult<SnaprConfig> {
-    let file_path = ".snapr/config.json";
+    let file_path = CONFIG_FILE;
     if !Path::new(file_path).exists() {
         return Ok(SnaprConfig::new());
     }

@@ -1,23 +1,23 @@
-use std::{env};
+use std::env;
 mod bench;
 mod cli;
 mod commands;
-mod config;
-mod error;
-mod models;
-mod storage;
-mod filesystem;
 mod constants;
+mod error;
+mod filesystem;
+mod models;
 mod processing;
+mod storage;
 mod ui;
 
 use cli::parse_args;
 use commands::{
-    Command, diff::handle_diff, history::handle_history, init::handle_init, save::handle_save, restore::handle_restore, status::handle_status
+    Command, diff::handle_diff, history::handle_history, init::handle_init,
+    restore::handle_restore, save::handle_save, status::handle_status,
 };
-use processing::{build_entries};
-use storage::load_snapshots;
 use error::SnaprResult;
+use processing::build_entries;
+use storage::load_snapshots;
 
 fn main() -> SnaprResult<()> {
     let args: Vec<String> = env::args().collect();
@@ -35,7 +35,11 @@ fn main() -> SnaprResult<()> {
             scoped_timer!("Save pipeline");
             let mut snapshots = load_snapshots()?;
             let report = handle_save(&mut snapshots, message)?;
-            ui::print_save_report(snapshots.last().unwrap().id, &snapshots.last().unwrap().message, &report);
+            ui::print_save_report(
+                snapshots.last().unwrap().id,
+                &snapshots.last().unwrap().message,
+                &report,
+            );
             Ok(())
         }
         Command::Diff(old, new) => {
