@@ -22,6 +22,7 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> Result<Wor
 
     //config
     config.update_current_snapshot();
+    config.update_repository_size(report.new_storage_bytes as u64);
     save_config(&config)?;
     Ok(report)
 }

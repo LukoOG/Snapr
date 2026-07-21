@@ -26,10 +26,11 @@ pub fn handle_restore(
             "Already on snapshot {}.\nUse --force to restore anyway.",
             snapshot_id
         );
-        return Ok(RestoreReport {
-            snapshot_id,
-            ..Default::default()
-        });
+        std::process::exit(0);
+        // return Ok(RestoreReport {
+        //     snapshot_id,
+        //     ..Default::default()
+        // });
     }
 
     let target_snapshot = snapshots

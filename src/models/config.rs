@@ -17,7 +17,7 @@ impl SnaprConfig {
     }
 
     pub fn update_repository_size(&mut self, size: u64) {
-        self.repository_size = size;
+        self.repository_size += size;
     }
 
     pub fn update_current_snapshot(&mut self) {

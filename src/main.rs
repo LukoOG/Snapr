@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let report = handle_restore(&snapshots, restore_options)?;
             if report.dry_run {
                 ui::print_restore_dry_run_report(snapshots.last().unwrap().id, &report);
-            } else {
+            } else if !report.dry_run {
                 ui::print_restore_report(snapshots.last().unwrap().id, &report);
             }
             Ok(())
