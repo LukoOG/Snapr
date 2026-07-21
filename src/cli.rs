@@ -1,4 +1,4 @@
-use std::cmp;
+use std::{cmp, println};
 
 use crate::commands::{Command, models::RestoreOptions};
 
@@ -14,7 +14,7 @@ fn parse_snapshot_id(args: &[String], index: usize, name: &str) -> u32 {
 pub fn parse_args(args: &[String]) -> Command {
     let length = args.len();
     if length < 2 {
-        println!("No arguements provided!");
+        eprintln!("No arguements provided!");
         std::process::exit(1)
     };
 
@@ -43,11 +43,19 @@ pub fn parse_args(args: &[String]) -> Command {
             Command::Diff(old_id, new_id)
         }
         "restore" => {
-            let snapshot_id = args
-                .get(2)
-                .expect("Provide snapshot id")
-                .parse::<u32>()
-                .expect("Snapshot id must be an integer");
+            let snapshot_id = match args.get(2) {
+                Some(id) => match id.parse::<u32>() {
+                    Ok(id) => id,
+                    Err(_) => {
+                        eprintln!("Snapshot id must be an integer");
+                        std::process::exit(1);
+                    }
+                },
+                None => {
+                    eprintln!("Provide snapshot id");
+                    std::process::exit(1);
+                }
+            };
 
             let force = args.iter().any(|arg| arg == "--force");
             let dry_run = args.iter().any(|arg| arg == "--dry-run");
