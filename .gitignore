@@ -1,5 +1,6 @@
 /target
 .snapr
+.cargo
 hello.txt
 demo.tape
 demo.mp4

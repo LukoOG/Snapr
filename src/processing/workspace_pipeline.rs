@@ -23,7 +23,7 @@ fn hash_file_chunks(path: &Path) -> SnaprResult<Vec<String>> {
 }
 
 fn process_file(path: &Path) -> SnaprResult<FileProcessResult> {
-    scoped_timer!("Process File: {path.display()} "); 
+    scoped_timer!("Process File: {}", path.file_name().unwrap().to_string_lossy());
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
     let mut chunk_hashes = Vec::new();

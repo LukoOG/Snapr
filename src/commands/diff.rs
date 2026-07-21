@@ -1,5 +1,4 @@
 use crate::{commands::helpers::compare_snapshots, error::SnaprResult, models::Snapshot};
-use std::error::Error;
 
 pub fn handle_diff(snapshots: &[Snapshot], old_id: u32, new_id: u32) -> SnaprResult<()> {
     if old_id == 0 || new_id == 0 {

@@ -1,7 +1,5 @@
 use walkdir::{DirEntry, WalkDir};
 use std::path::PathBuf;
-use std::error::Error;
-
 use crate::error::SnaprResult;
 
 fn should_skip(entry: &DirEntry) -> bool {
@@ -9,10 +7,10 @@ fn should_skip(entry: &DirEntry) -> bool {
 
     match entry.file_type() {
         t if t.is_dir() => {
-            matches!(name, Some(".git" | "target" | ".snapr"))
+            return matches!(name, Some(".git" | "target" | ".snapr"))
         }
         _ => {
-            matches!(name, Some(".DS_Store"))
+            return matches!(name, Some(".DS_Store"))
         }
     }
 }

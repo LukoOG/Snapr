@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::{config::load_config, error::SnaprResult, models::Snapshot};
 
 pub fn handle_history(snapshots: &[Snapshot]) -> SnaprResult<()> {

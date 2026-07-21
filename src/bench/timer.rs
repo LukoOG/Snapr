@@ -1,25 +1,22 @@
+use std::borrow::Cow;
 use std::time::Instant;
 
-pub struct ScopedTimer<'a> {
-    name: &'a str,
+pub struct ScopedTimer {
+    name: Cow<'static, str>,
     start: Instant,
 }
 
-impl<'a> ScopedTimer<'a> {
-    pub fn new(name: &'a str) -> Self {
+impl ScopedTimer{
+    pub fn new(name: impl Into<Cow<'static, str>>) -> Self {
         Self {
-            name,
+            name: name.into(),
             start: Instant::now(),
         }
     }
 }
 
-impl<'a> Drop for ScopedTimer<'a> {
+impl Drop for ScopedTimer {
     fn drop(&mut self) {
-        println!(
-            "[BENCH] {:<20} {:?}",
-            self.name,
-            self.start.elapsed()
-        );
+        println!("[BENCH] {:<20} {:?}", self.name, self.start.elapsed());
     }
 }

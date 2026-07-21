@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::{
     config::load_config, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceSnapshot},
 };

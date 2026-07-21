@@ -20,8 +20,12 @@ macro_rules! benchmark {
 #[cfg(feature = "benchmark")]
 #[macro_export]
 macro_rules! scoped_timer {
-    ($name:expr) => {
+    ($name:literal) => {
         let _timer = $crate::bench::ScopedTimer::new($name);
+    };
+
+    ($($arg:tt)*) => {
+        let _timer = $crate::bench::ScopedTimer::new(format!($($arg)*));
     };
 }
 
@@ -29,4 +33,5 @@ macro_rules! scoped_timer {
 #[macro_export]
 macro_rules! scoped_timer {
     ($name:expr) => {};
+    ($($arg:tt)*) => {};
 }

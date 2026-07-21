@@ -3,6 +3,7 @@ pub mod config;
 pub mod reports;
 pub mod results;
 pub mod snapshot;
+#[allow(unused)]
 pub mod chunk;
 
 pub use config::*;

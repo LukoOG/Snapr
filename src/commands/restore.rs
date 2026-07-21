@@ -8,7 +8,7 @@ use crate::processing::build_entries;
 
 use std::collections::HashMap;
 use std::println;
-use std::{error::Error, fs};
+use std::{fs};
 
 pub fn handle_restore(
     snapshots: &[Snapshot],
