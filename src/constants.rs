@@ -16,6 +16,6 @@ pub const OBJECTS_DIR: &str = ".snapr/objects";
 
 pub const SNAPSHOTS_FILE: &str = ".snapr/snapshots.json";
 
-pub const WORKSPACE_INDEX: &str = ".snapr/workspace_index.json";
+pub const WORKSPACE_INDEX_FILE: &str = ".snapr/workspace_index.json";
 
 pub const CONFIG_FILE: &str = ".snapr/config.json";

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::models::DiffResult;
-use crate::models::{FileEntry, SnapshotFiles};
+use crate::{models::{FileEntry, SnapshotFiles}, scoped_timer};
 
 fn print_section(title: &str, symbol: char, entries: &[String]) {
     if entries.is_empty() {
@@ -70,6 +70,7 @@ pub(super) fn calculate_diff<F: SnapshotFiles, T: SnapshotFiles>(from: &F, to: &
 }
 
 pub(super) fn compare_snapshots<F: SnapshotFiles, T: SnapshotFiles>(from: &F, to: &T, title: &str) {
+    scoped_timer!("Comparing");
     let diff = calculate_diff(from, to);
     println!("{}", title);
     print_diff(&diff);
