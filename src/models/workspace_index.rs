@@ -27,7 +27,7 @@ impl WorkspaceIndex {
         }
     }
 
-    pub fn lookup(&self, path: &str) -> IndexLookup {
+    pub fn lookup(&self, path: &str) -> IndexLookup<'_> {
         match self.files.get(path) {
             Some(file) => IndexLookup::Hit(file),
             None => IndexLookup::Miss,

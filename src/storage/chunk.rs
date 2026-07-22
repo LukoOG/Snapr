@@ -1,5 +1,5 @@
 use crate::{
-    constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR, SNAPSHOTS_FILE}, error::SnaprResult, models::{ChunkStoreResult, CompressedChunk, Snapshot},
+    constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR}, error::SnaprResult, models::{ChunkStoreResult, CompressedChunk},
 };
 use std::{fs, path::Path};
 use zstd::decode_all;
