@@ -51,7 +51,7 @@ fn main() -> SnaprResult<()> {
             let snapshots = load_snapshots()?;
             let report = handle_restore(&snapshots, restore_options)?;
             if report.dry_run {
-                ui::print_restore_dry_run_report(snapshots.last().unwrap().id, &report);
+                ui::print_restore_dry_run_report(&report);
             } else if !report.dry_run {
                 ui::print_restore_report(&report);
             }

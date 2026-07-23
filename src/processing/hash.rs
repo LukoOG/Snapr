@@ -1,10 +1,17 @@
 use std::{fs::File, path::Path};
 
-use crate::{error::SnaprResult, filesystem::hash::hash_chunk, models::{ChunkReader, DEFAULT_CHUNK_SIZE, FileProcessResult, FileStoreReport}};
-
-
+use crate::{
+    error::SnaprResult,
+    filesystem::hash::hash_chunk,
+    models::{ChunkReader, DEFAULT_CHUNK_SIZE, FileProcessResult, FileStoreReport},
+    scoped_timer,
+};
 
 pub fn hash_file_chunks(path: &Path) -> SnaprResult<FileProcessResult> {
+    scoped_timer!(
+        "Hashing File: {}",
+        path.file_name().unwrap().to_string_lossy()
+    );
     let reader = File::open(path)?;
     let mut chunk_reader = ChunkReader::new(reader, DEFAULT_CHUNK_SIZE);
     let mut chunk_hashes = Vec::new();

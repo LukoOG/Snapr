@@ -4,6 +4,7 @@ use crate::error::SnaprResult;
 use crate::filesystem::restore_file;
 use crate::models::{RestoreReport, Snapshot, WorkspaceSnapshot};
 use crate::processing::build_entries;
+use crate::scoped_timer;
 use crate::storage::{load_config, save_config};
 
 use std::collections::HashMap;
@@ -14,6 +15,7 @@ pub fn handle_restore(
     snapshots: &[Snapshot],
     options: RestoreOptions,
 ) -> SnaprResult<RestoreReport> {
+    scoped_timer!("Restore Pipeline");
     let mut config = load_config()?;
     let RestoreOptions {
         snapshot_id,
@@ -67,11 +69,12 @@ pub fn handle_restore(
         fs::remove_file(path)?;
     }
 
+    let mut restored_bytes = 0_u64;
     for path in diff.added.iter().chain(diff.modified.iter()) {
         let hashes = target_map
             .get(path.as_str())
             .ok_or("Missing file in snapshot")?;
-        restore_file(path, hashes)?;
+        restored_bytes += restore_file(path, hashes)?;
     }
 
     //config
@@ -82,7 +85,7 @@ pub fn handle_restore(
         restored_files: restored,
         removed_files: removed,
         skipped_files: skipped,
-        restored_bytes: 0, // This would need to be calculated if needed
+        restored_bytes, // This would need to be calculated if needed
         dry_run: false,
     })
 }
