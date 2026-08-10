@@ -9,7 +9,6 @@ use crate::storage::{load_config, save_config};
 
 use std::collections::HashMap;
 use std::fs;
-use std::println;
 
 pub fn handle_restore(
     snapshots: &[Snapshot],
@@ -85,7 +84,7 @@ pub fn handle_restore(
         restored_files: restored,
         removed_files: removed,
         skipped_files: skipped,
-        restored_bytes, // This would need to be calculated if needed
+        restored_bytes,
         dry_run: false,
     })
 }

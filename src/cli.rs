@@ -67,6 +67,10 @@ pub fn parse_args(args: &[String]) -> Command {
             })
         }
         "status" => Command::Status,
+        "verify" => {
+
+            Command::Verify
+        },
         _ => {
             eprintln!("Unknown Command!");
             std::process::exit(1)

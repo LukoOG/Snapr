@@ -5,6 +5,7 @@ pub mod diff;
 pub mod restore;
 pub mod status;
 pub mod models;
+pub mod verify;
 mod helpers;
 pub enum Command {
     Init,
@@ -13,4 +14,5 @@ pub enum Command {
     Diff (u32, u32),
     Restore(models::RestoreOptions),
     Status,
+    Verify,
 }

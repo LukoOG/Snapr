@@ -21,3 +21,8 @@ pub struct EntryBuildResult {
     pub report: FileStoreReport,
     pub cache_entry: IndexedFile,
 }
+
+pub struct ChunkVerifyResult {
+    pub hash: String,
+    pub original_size: u64,
+}

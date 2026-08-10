@@ -1,6 +1,37 @@
 use super::results::*;
+use thiserror::Error;
 
 #[allow(unused)]
+
+#[derive(Debug, Error)]
+pub enum VerifyIssue {
+    #[error("missing chunk: {hash}")]
+    MissingChunk {
+        hash: String,
+    },
+
+    #[error("invalid header for chunk: {hash}")]
+    InvalidHeader {
+        hash: String,
+    },
+
+    #[error("unsupported compression ({compression}) for chunk: {hash}")]
+    UnsupportedCompression {
+        hash: String,
+        compression: u8,
+    },
+
+    #[error("Chunk contents do not satify metadata: {hash}")]
+    CorruptedChunk {
+        hash: String,
+    },
+
+    #[error("Object successfully decompressed but got {expected} instead of {actual}")]
+    HashMismatch {
+        expected: String,
+        actual: String,
+    },
+}
 
 #[derive(Default)]
 pub struct FileStoreReport {
@@ -78,4 +109,46 @@ pub struct RestoreReport {
 
     pub restored_bytes: u64,
     pub dry_run: bool,
+}
+
+#[derive(Default)]
+
+pub struct FileVerifyReport {
+    pub chunks_checked: usize,
+    pub bytes_verified: u64,
+}
+
+#[derive(Default)]
+pub struct SnapshotVerifyReport {
+    pub files_checked: usize,
+    pub chunks_checked: usize,
+    pub bytes_verified: u64,
+}
+
+#[derive(Default)]
+pub struct VerifyReport {
+    pub snapshots_checked: usize,
+
+    pub files_checked: usize,
+
+    pub chunks_checked: usize,
+
+    pub bytes_verified: u64,
+
+    pub issues: Vec<VerifyIssue>,
+}
+
+impl FileVerifyReport {
+    pub fn record(&mut self, result: &ChunkVerifyResult) {
+        self.chunks_checked += 1;
+        self.bytes_verified += result.original_size;
+    }
+}
+
+impl SnapshotVerifyReport {
+    pub fn merge(&mut self, report: &FileVerifyReport) {
+        self.files_checked += 1;
+        self.bytes_verified += report.bytes_verified;
+        self.chunks_checked += report.chunks_checked
+    }
 }

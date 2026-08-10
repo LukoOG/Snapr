@@ -1,7 +1,7 @@
 use super::format_bytes;
 use crate::models::WorkspaceStoreReport;
 
-pub fn print_workspace_store_report(snapshot_id: u32, message: &str, report: &WorkspaceStoreReport) {
+pub fn print_verify_report(snapshot_id: u32, message: &str, report: &WorkspaceStoreReport) {
     println!("✓ Snapshot {} created", snapshot_id);
     println!("  \"{}\"", message);
 

@@ -9,11 +9,12 @@ mod models;
 mod processing;
 mod storage;
 mod ui;
+mod verify;
 
 use cli::parse_args;
 use commands::{
     Command, diff::handle_diff, history::handle_history, init::handle_init,
-    restore::handle_restore, save::handle_save, status::handle_status,
+    restore::handle_restore, save::handle_save, status::handle_status, verify::handle_verify,
 };
 use error::SnaprResult;
 use processing::build_entries;
@@ -35,7 +36,7 @@ fn main() -> SnaprResult<()> {
             scoped_timer!("Save pipeline");
             let mut snapshots = load_snapshots()?;
             let report = handle_save(&mut snapshots, message)?;
-            ui::print_save_report(
+            ui::print_workspace_store_report(
                 snapshots.last().unwrap().id,
                 &snapshots.last().unwrap().message,
                 &report,
@@ -61,6 +62,10 @@ fn main() -> SnaprResult<()> {
             let snapshots = load_snapshots()?;
             let entries = build_entries()?; //current workspace entries
             handle_status(&snapshots, entries)?;
+            Ok(())
+        }
+        Command::Verify => {
+            let _ = handle_verify()?;
             Ok(())
         }
     };
