@@ -132,6 +132,8 @@ pub struct VerifyReport {
     pub files_checked: usize,
 
     pub chunks_checked: usize,
+    pub chunks_verified: usize,
+    pub chunks_referenced: usize,
 
     pub bytes_verified: u64,
 

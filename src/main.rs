@@ -9,7 +9,7 @@ mod models;
 mod processing;
 mod storage;
 mod ui;
-mod verify;
+mod verification;
 
 use cli::parse_args;
 use commands::{
@@ -65,7 +65,9 @@ fn main() -> SnaprResult<()> {
             Ok(())
         }
         Command::Verify => {
-            let _ = handle_verify()?;
+            let snapshots = load_snapshots()?;
+            let report = handle_verify(&snapshots)?;
+            ui::print_verify_report(&report);
             Ok(())
         }
     };

@@ -76,7 +76,7 @@ pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerifyResult> {
     })
 }
 
-pub fn verify_file(hashes: &[String]) -> SnaprResult<FileVerifyReport> {
+pub fn verify_file(hashes: &[&String]) -> SnaprResult<FileVerifyReport> {
     let mut report = FileVerifyReport::default();
     let results = hashes
         .par_iter()
@@ -91,7 +91,7 @@ pub fn verify_file(hashes: &[String]) -> SnaprResult<FileVerifyReport> {
 
 pub fn verify_snapshot(
     snapshot: &Snapshot,
-    verified: &HashSet<String>,
+    verified: &HashSet<&String>,
 ) -> SnaprResult<SnapshotVerifyReport> {
     let mut report = SnapshotVerifyReport::default();
     let results = snapshot
@@ -101,7 +101,7 @@ pub fn verify_snapshot(
             let unverified_hashes = chunk_hashes
                 .iter()
                 .filter(|hash| !verified.contains(*hash))
-                .cloned()
+                // .cloned()
                 .collect::<Vec<_>>();
             verify_file(&unverified_hashes)
         })
@@ -114,7 +114,7 @@ pub fn verify_snapshot(
 
 pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
     let mut report = VerifyReport::default();
-    let mut hash_set: HashSet<String> =
+    let mut hash_set: HashSet<&String> =
         HashSet::with_capacity(snapshots.iter().map(|f| f.files.len()).sum());
     for snapshot in snapshots.iter() {
         let snapshot_report = verify_snapshot(snapshot, &hash_set)?;
@@ -125,7 +125,7 @@ pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
 
         for file in &snapshot.files {
             for hash in &file.chunk_hashes {
-                hash_set.insert(hash.clone());
+                hash_set.insert(hash);
             }
         }
     }
