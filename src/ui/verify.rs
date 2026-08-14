@@ -11,6 +11,7 @@ pub fn print_verify_report(report: &VerifyReport) {
     println!("  Files checked     : {}", report.files_checked);
 
     println!("\nChunks");
+    println!("  Total             : {}", report.total_chunks);
     println!("  Referenced        : {}", report.chunks_referenced);
     println!("  Verified          : {}", report.chunks_verified);
 

@@ -1,3 +1,5 @@
+use std::println;
+
 use super::results::*;
 use thiserror::Error;
 
@@ -114,14 +116,15 @@ pub struct RestoreReport {
 #[derive(Default)]
 
 pub struct FileVerifyReport {
-    pub chunks_checked: usize,
+    pub chunks_verified: usize,
     pub bytes_verified: u64,
+    pub issues: Vec<VerifyIssue>,
 }
 
 #[derive(Default)]
 pub struct SnapshotVerifyReport {
     pub files_checked: usize,
-    pub chunks_checked: usize,
+    pub chunks_verified: usize,
     pub bytes_verified: u64,
 }
 
@@ -131,9 +134,9 @@ pub struct VerifyReport {
 
     pub files_checked: usize,
 
-    pub chunks_checked: usize,
     pub chunks_verified: usize,
     pub chunks_referenced: usize,
+    pub total_chunks: usize,
 
     pub bytes_verified: u64,
 
@@ -141,9 +144,17 @@ pub struct VerifyReport {
 }
 
 impl FileVerifyReport {
-    pub fn record(&mut self, result: &ChunkVerifyResult) {
-        self.chunks_checked += 1;
-        self.bytes_verified += result.original_size;
+    pub fn record(&mut self, result: ChunkVerificationResult) {
+        match result {
+            ChunkVerificationResult::Verified(chunk_result) => {
+                self.chunks_verified += 1;
+                println!("File with {}: {}", &chunk_result.hash[..10], chunk_result.original_size);
+                self.bytes_verified += chunk_result.original_size;
+            }
+            ChunkVerificationResult::Issue(issue) => {
+                self.issues.push(issue);
+            }
+        }
     }
 }
 
@@ -151,6 +162,16 @@ impl SnapshotVerifyReport {
     pub fn merge(&mut self, report: &FileVerifyReport) {
         self.files_checked += 1;
         self.bytes_verified += report.bytes_verified;
-        self.chunks_checked += report.chunks_checked
+        self.chunks_verified += report.chunks_verified
+    }
+}
+
+impl VerifyReport {
+    pub fn merge(&mut self, report: &SnapshotVerifyReport) {
+        self.files_checked += report.files_checked;
+
+        self.chunks_verified += report.chunks_verified;
+        
+        self.bytes_verified += report.bytes_verified;
     }
 }

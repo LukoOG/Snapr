@@ -1,4 +1,4 @@
-use crate::models::{FileEntry, workspace_index::IndexedFile};
+use crate::models::{FileEntry, VerifyIssue, workspace_index::IndexedFile};
 
 use super::reports::FileStoreReport;
 
@@ -25,4 +25,9 @@ pub struct EntryBuildResult {
 pub struct ChunkVerifyResult {
     pub hash: String,
     pub original_size: u64,
+}
+
+pub enum ChunkVerificationResult {
+    Verified(ChunkVerifyResult),
+    Issue(VerifyIssue),
 }
