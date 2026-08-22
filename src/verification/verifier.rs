@@ -3,10 +3,12 @@ use crate::error::SnaprResult;
 use crate::filesystem::hash::hash_chunk_bytes;
 use crate::models::{ChunkVerificationResult, ChunkVerifyResult, CompressionType, VerifyReport};
 use crate::models::{FileEntry, FileVerifyReport, Snapshot, SnapshotVerifyReport, VerifyIssue};
+use crate::scoped_timer;
 use crate::storage::models::ObjectHeader;
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::fs;
+use super::models::verify::FileVerificationKey;
 
 pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
     let object_path = format!("{}/{}", OBJECTS_DIR, hash);
@@ -14,7 +16,22 @@ pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
         hash: hash.to_string(),
     })?;
 
+    
+    // 1. Basic object size validation
+    if object.len() < HEADER_SIZE {
+        return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
+            hash: hash.to_string(),
+        }));
+    }
+    
+    // 2. Magic
+    if &object[..MAGIC.len()] != MAGIC {
+        return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
+            hash: hash.to_string(),
+        }));
+    }
     //TODO: Get object header values from ObjectHeader::extract method
+    // 3. Object
     let ObjectHeader {
         version: _,
         flags: _,
@@ -28,26 +45,6 @@ pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
             }));
         }
     };
-
-    // 1. Basic object size validation
-    if object.len() < HEADER_SIZE {
-        return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
-            hash: hash.to_string(),
-        }));
-    }
-
-    // 2. Magic
-    if &object[..MAGIC.len()] != MAGIC {
-        return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
-            hash: hash.to_string(),
-        }));
-    }
-
-    // 3. Header
-    // let _version = object[5];
-    // let _flags = object[6];
-    // let compression = object[7];
-    // let original_size = u64::from_le_bytes(object[8..16].try_into()?);
 
     let compressed = &object[HEADER_SIZE..];
     // 4. Decompress according to compression type
@@ -105,6 +102,7 @@ pub fn verify_snapshot(
     snapshot: &Snapshot,
     verified: &HashSet<&String>,
 ) -> SnaprResult<SnapshotVerifyReport> {
+    scoped_timer!("process snapshot {}", snapshot.id);
     let mut report = SnapshotVerifyReport::default();
     let results = snapshot
         .files
@@ -125,10 +123,11 @@ pub fn verify_snapshot(
 
 pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
     let mut report = VerifyReport::default();
+    let capacity = snapshots.iter().map(|f| f.files.len()).sum();
     let mut verified_chunks: HashSet<&String> =
-        HashSet::with_capacity(snapshots.iter().map(|f| f.files.len()).sum());
-    let mut verified_files: HashSet<&FileEntry> =
-        HashSet::with_capacity(snapshots.iter().map(|f| f.files.len()).sum());
+        HashSet::with_capacity(capacity);
+    let mut verified_files: HashSet<FileVerificationKey> =
+        HashSet::with_capacity(capacity);
     for snapshot in snapshots.iter() {
         let snapshot_report = verify_snapshot(snapshot, &verified_chunks)?;
         // report.chunks_referenced += snapshot.files.iter().map(|f| f.chunk_hashes.len()).sum::<usize>();
@@ -137,11 +136,16 @@ pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
 
         for file in &snapshot.files {
             report.chunks_referenced += file.chunk_hashes.len();
+            verified_files.insert(FileVerificationKey {
+                path: file.path.clone(),
+                chunk_hashes: file.chunk_hashes.clone(),
+            });
             for hash in &file.chunk_hashes {
                 verified_chunks.insert(hash);
             }
         }
     }
     report.total_chunks = verified_chunks.len();
+    report.files_checked = verified_files.len();
     Ok(report)
 }

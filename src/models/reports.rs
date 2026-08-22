@@ -1,5 +1,3 @@
-use std::println;
-
 use super::results::*;
 use thiserror::Error;
 
@@ -148,7 +146,7 @@ impl FileVerifyReport {
         match result {
             ChunkVerificationResult::Verified(chunk_result) => {
                 self.chunks_verified += 1;
-                println!("File with {}: {}", &chunk_result.hash[..10], chunk_result.original_size);
+                // println!("File with {}: {}", &chunk_result.hash[..10], chunk_result.original_size);
                 self.bytes_verified += chunk_result.original_size;
             }
             ChunkVerificationResult::Issue(issue) => {

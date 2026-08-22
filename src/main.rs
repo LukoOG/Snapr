@@ -65,6 +65,7 @@ fn main() -> SnaprResult<()> {
             Ok(())
         }
         Command::Verify => {
+            scoped_timer!("Verify pipeline");
             let snapshots = load_snapshots()?;
             let report = handle_verify(&snapshots)?;
             ui::print_verify_report(&report);

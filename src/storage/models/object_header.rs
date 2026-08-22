@@ -1,5 +1,6 @@
 use crate::models::CompressionType;
 
+#[allow(unused)]
 pub struct ObjectHeader {
     pub version: u8,
     pub flags: u8,

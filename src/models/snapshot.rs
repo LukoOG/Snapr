@@ -6,12 +6,6 @@ pub struct FileEntry {
     pub chunk_hashes: Vec<String>,
 }
 
-// #[derive(Debug)]
-// pub struct FileSnapshot {
-//     pub chunk_hashes: Vec<String>,
-//     pub report: FileStoreReport,
-// }
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Snapshot {
     pub id: u32,
