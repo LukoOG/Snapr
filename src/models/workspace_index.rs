@@ -91,7 +91,7 @@ impl IndexedFile {
         self.modified == modified && self.size == metadata.len()
     }
 
-    pub fn chunk_hashes(&self) -> &[String] {
+    pub fn get_hashes(&self) -> &[String] {
         &self.chunk_hashes
     }
 

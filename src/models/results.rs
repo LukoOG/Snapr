@@ -17,7 +17,6 @@ pub struct ChunkStoreResult {
 
 pub struct EntryBuildResult {
     pub path: String,
-    pub entry: FileEntry,
     pub report: FileStoreReport,
     pub cache_entry: IndexedFile,
 }
@@ -30,4 +29,13 @@ pub struct ChunkVerifyResult {
 pub enum ChunkVerificationResult {
     Verified(ChunkVerifyResult),
     Issue(VerifyIssue),
+}
+
+impl Into<FileEntry> for EntryBuildResult {
+    fn into(self) -> FileEntry {
+        FileEntry {
+            path: self.path,
+            chunk_hashes: self.cache_entry.chunk_hashes,
+        }
+    }
 }

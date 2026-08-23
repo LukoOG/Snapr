@@ -17,7 +17,7 @@ pub fn build_entries() -> SnaprResult<Vec<FileEntry>> {
         .map(|file| build_entry(file, EntryMode::Hash, &index))
         .collect::<SnaprResult<Vec<_>>>()?;
 
-    Ok(results.into_iter().map(|r| r.entry).collect())
+    Ok(results.into_iter().map(|r| r.into()).collect())
 }
 
 pub fn build_snapshot_entries() -> SnaprResult<(Vec<FileEntry>, WorkspaceStoreReport)> {
@@ -31,10 +31,10 @@ pub fn build_snapshot_entries() -> SnaprResult<(Vec<FileEntry>, WorkspaceStoreRe
             .map(|file| build_entry(file, EntryMode::Store, &index))
             .collect::<SnaprResult<Vec<_>>>()?;
         for result in results {
-            index.insert(result.path, result.cache_entry);
+            index.insert(result.path.clone(), result.cache_entry.clone());
 
             report.merge(&result.report);
-            entries.push(result.entry);
+            entries.push(result.into());
         }
     };
     save_workspace_index(&index)?;
