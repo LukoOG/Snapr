@@ -124,6 +124,7 @@ pub struct SnapshotVerifyReport {
     pub files_checked: usize,
     pub chunks_verified: usize,
     pub bytes_verified: u64,
+    pub issues: Vec<VerifyIssue>,
 }
 
 #[derive(Default)]
@@ -157,19 +158,21 @@ impl FileVerifyReport {
 }
 
 impl SnapshotVerifyReport {
-    pub fn merge(&mut self, report: &FileVerifyReport) {
+    pub fn merge(&mut self, report: FileVerifyReport) {
         self.files_checked += 1;
         self.bytes_verified += report.bytes_verified;
-        self.chunks_verified += report.chunks_verified
+        self.chunks_verified += report.chunks_verified;
+        self.issues.extend(report.issues);
     }
 }
 
 impl VerifyReport {
-    pub fn merge(&mut self, report: &SnapshotVerifyReport) {
+    pub fn merge(&mut self, report: SnapshotVerifyReport) {
         self.files_checked += report.files_checked;
-
+        
         self.chunks_verified += report.chunks_verified;
         
         self.bytes_verified += report.bytes_verified;
+        self.issues.extend(report.issues);
     }
 }

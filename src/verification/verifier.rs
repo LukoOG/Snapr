@@ -1,3 +1,4 @@
+use super::models::verify::FileVerificationKey;
 use crate::constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR};
 use crate::error::SnaprResult;
 use crate::filesystem::hash::hash_chunk_bytes;
@@ -8,22 +9,25 @@ use crate::storage::models::ObjectHeader;
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::fs;
-use super::models::verify::FileVerificationKey;
 
 pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
     let object_path = format!("{}/{}", OBJECTS_DIR, hash);
-    let object = fs::read(object_path).map_err(|_| VerifyIssue::MissingChunk {
-        hash: hash.to_string(),
-    })?;
+    let object = match fs::read(object_path) {
+        Ok(val) => val,
+        Err(_) => {
+            return Ok(ChunkVerificationResult::Issue(VerifyIssue::MissingChunk {
+                hash: hash.to_string(),
+            }));
+        }
+    };
 
-    
     // 1. Basic object size validation
     if object.len() < HEADER_SIZE {
         return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
             hash: hash.to_string(),
         }));
     }
-    
+
     // 2. Magic
     if &object[..MAGIC.len()] != MAGIC {
         return Ok(ChunkVerificationResult::Issue(VerifyIssue::InvalidHeader {
@@ -116,7 +120,7 @@ pub fn verify_snapshot(
         })
         .collect::<SnaprResult<Vec<FileVerifyReport>>>()?;
     for result in results {
-        report.merge(&result);
+        report.merge(result);
     }
     Ok(report)
 }
@@ -124,15 +128,13 @@ pub fn verify_snapshot(
 pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
     let mut report = VerifyReport::default();
     let capacity = snapshots.iter().map(|f| f.files.len()).sum();
-    let mut verified_chunks: HashSet<&String> =
-        HashSet::with_capacity(capacity);
-    let mut verified_files: HashSet<FileVerificationKey> =
-        HashSet::with_capacity(capacity);
+    let mut verified_chunks: HashSet<&String> = HashSet::with_capacity(capacity);
+    let mut verified_files: HashSet<FileVerificationKey> = HashSet::with_capacity(capacity);
     for snapshot in snapshots.iter() {
         let snapshot_report = verify_snapshot(snapshot, &verified_chunks)?;
         // report.chunks_referenced += snapshot.files.iter().map(|f| f.chunk_hashes.len()).sum::<usize>();
         report.snapshots_checked += 1;
-        report.merge(&snapshot_report);
+        report.merge(snapshot_report);
 
         for file in &snapshot.files {
             report.chunks_referenced += file.chunk_hashes.len();
