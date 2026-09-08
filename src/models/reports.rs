@@ -35,30 +35,30 @@ pub enum VerifyIssue {
 
 #[derive(Default)]
 pub struct FileStoreReport {
-    pub total_chunks: usize,
+    pub chunks_processed: usize,
     pub new_chunks: usize,
     pub reused_chunks: usize,
 
-    pub workspace_bytes: usize,
+    pub processed_bytes: usize,
     pub new_storage_bytes: usize,
 }
 
 #[derive(Default)]
 pub struct WorkspaceStoreReport {
-    pub total_files: usize,
+    pub files_processed: usize,
+    pub chunks_processed: usize,
 
-    pub total_chunks: usize,
     pub new_chunks: usize,
     pub reused_chunks: usize,
 
-    pub workspace_bytes: usize,
+    pub processed_bytes: usize,
     pub new_storage_bytes: usize,
 }
 
 impl FileStoreReport {
     pub fn record(&mut self, result: &ChunkStoreResult) {
-        self.total_chunks += 1;
-        self.workspace_bytes += result.original_size;
+        self.chunks_processed += 1;
+        self.processed_bytes += result.original_size;
 
         if result.stored {
             self.new_chunks += 1;
@@ -71,29 +71,29 @@ impl FileStoreReport {
 
 impl WorkspaceStoreReport {
     pub fn merge(&mut self, file: &FileStoreReport) {
-        self.total_files += 1;
+        self.files_processed += 1;
 
-        self.total_chunks += file.total_chunks;
+        self.chunks_processed += file.chunks_processed;
         self.new_chunks += file.new_chunks;
         self.reused_chunks += file.reused_chunks;
 
-        self.workspace_bytes += file.workspace_bytes;
+        self.processed_bytes += file.processed_bytes;
         self.new_storage_bytes += file.new_storage_bytes;
     }
 
     #[inline]
     pub fn deduplication_ratio(&self) -> f64 {
-        if self.total_chunks == 0 {
+        if self.chunks_processed == 0 {
             return 0.0;
         }
 
-        self.reused_chunks as f64 / self.total_chunks as f64
+        self.reused_chunks as f64 / self.chunks_processed as f64
     }
 
     #[inline]
     pub fn compression_ratio(&self) -> f64 {
-        if self.workspace_bytes > 0 {
-            100.0 * (1.0 - self.new_storage_bytes as f64 / self.workspace_bytes as f64)
+        if self.processed_bytes > 0 {
+            100.0 * (1.0 - self.new_storage_bytes as f64 / self.processed_bytes as f64)
         } else {
             0.0
         }

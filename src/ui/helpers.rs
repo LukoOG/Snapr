@@ -30,12 +30,11 @@ pub fn format_timestamp(timestamp_secs: u64) -> String {
     // 3. Optional: Convert to local time if required for presentation
     let datetime_local: DateTime<Local> = DateTime::from(datetime_utc);
 
-    // 4. Format into your exact layout: "Sep 8, 2026 · 2:14 PM"
+    // 4. Format into a concise history layout: "Sep 8, 2:14 PM"
     // %b = Abbreviated month name (e.g., Sep)
-    // %e = Day of the month, space-padded (e.g.,  8)
-    // %Y = Four-digit year (e.g., 2026)
-    // %l = Hour, space-padded, 12-hour clock (e.g.,  2)
+    // %-d = Day of the month without padding (e.g., 8)
+    // %-I = 12-hour clock without padding (e.g., 2)
     // %M = Minute, zero-padded (e.g., 14)
     // %p = AM/PM indicator (e.g., PM)
-    datetime_local.format("%b %e, %Y · %l:%M %p").to_string()
+    datetime_local.format("%b %-d, %-I:%M %p").to_string()
 }

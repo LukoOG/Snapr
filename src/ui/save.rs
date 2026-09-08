@@ -8,11 +8,11 @@ pub fn print_workspace_store_report(snapshot_id: u32, message: &str, report: &Wo
     println!("\n────────────────────────────────────────");
 
     println!("\nWorkspace");
-    println!("  Files processed : {}", report.total_files);
-    println!("  Chunks processed: {}", report.total_chunks);
+    println!("  Files processed : {}", report.files_processed);
+    println!("  Chunks processed: {}", report.chunks_processed);
     println!(
         "  Size of processed files  : {}",
-        format_bytes(report.workspace_bytes as f64)
+        format_bytes(report.processed_bytes as f64)
     );
 
     println!("\nObject Store");

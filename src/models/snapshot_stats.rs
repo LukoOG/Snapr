@@ -22,9 +22,9 @@ pub struct SnapshotStats {
 impl From<&WorkspaceStoreReport> for SnapshotStats {
     fn from(report: &WorkspaceStoreReport) -> Self {
         SnapshotStats {
-            file_count: report.total_files,
-            chunk_count: report.total_chunks,
-            workspace_bytes: report.workspace_bytes as u64,
+            file_count: report.files_processed,
+            chunk_count: report.chunks_processed,
+            workspace_bytes: report.processed_bytes as u64,
             new_chunks: report.new_chunks,
             reused_chunks: report.reused_chunks,
             new_storage_bytes: report.new_storage_bytes as u64,
