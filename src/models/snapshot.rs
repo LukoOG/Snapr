@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use super::SnapshotStats;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileEntry {
     pub path: String,
@@ -10,12 +12,11 @@ pub struct FileEntry {
 pub struct Snapshot {
     pub id: u32,
     pub message: String,
+    pub created_at: u64,
     pub files: Vec<FileEntry>,
 
     //metadata
-    pub workspace_bytes: u64,
-    pub repository_bytes: u64,
-    pub chunk_count: u64,
+    pub stats: SnapshotStats,
 }
 
 #[derive(Debug)]

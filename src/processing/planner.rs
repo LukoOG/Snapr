@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{dbg, fs, path::Path};
 
 use crate::{
     error::SnaprResult,
@@ -47,6 +47,7 @@ pub fn build_entry(
         }
 
         _ => {
+            println!("[Planner.rs] cache miss for path: {}", &path_string);
             let result = mode.process(path)?;
 
             let cache_entry = IndexedFile::new(modified, metadata.len(), result.chunk_hashes);

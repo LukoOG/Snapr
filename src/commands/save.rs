@@ -1,5 +1,5 @@
 use crate::{
-    storage::{load_config, save_config}, constants::SNAPSHOTS_FILE, error::SnaprResult, models::{Snapshot, WorkspaceStoreReport}, processing::build_snapshot_entries,
+    constants::SNAPSHOTS_FILE, error::SnaprResult, models::{Snapshot, SnapshotStats, WorkspaceStoreReport}, processing::build_snapshot_entries, storage::{load_config, save_config},
 };
 use std::{fs};
 
@@ -8,13 +8,13 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
 
     let (entries, report) = build_snapshot_entries()?;
     let next_id = snapshots.iter().map(|s| s.id).max().unwrap_or(0) + 1;
+    let stats = SnapshotStats::from(&report);
     let new_snapshot = Snapshot {
         id: next_id,
         message,
         files: entries,
-        chunk_count: report.total_chunks as u64,
-        repository_bytes: report.new_storage_bytes as u64,
-        workspace_bytes: report.original_bytes as u64,
+        created_at: chrono::Utc::now().timestamp() as u64,
+        stats,
     };
     snapshots.push(new_snapshot);
     let json = serde_json::to_string_pretty(snapshots)?;
