@@ -12,7 +12,7 @@ pub fn print_restore_report(report: &RestoreReport) {
     println!("Skipped: {} files", report.skipped_files);
 
     println!("\n Data");
-    println!("Restored bytes: {}", format_bytes(report.restored_bytes as usize));
+    println!("Restored bytes: {}", format_bytes(report.restored_bytes as f64));
 
     println!("\nWorkspace updated 📸.");
 }
@@ -28,7 +28,7 @@ pub fn print_restore_dry_run_report(report: &RestoreReport) {
     println!("{} files would be skipped", report.skipped_files);
 
     println!("\n Data");
-    println!("Restored Storage: {}", format_bytes(report.restored_bytes as usize));
+    println!("Restored Storage: {}", format_bytes((report.restored_bytes as usize) as f64));
 
     println!("\nNo changes were made to the workspace.");
 }

@@ -16,7 +16,7 @@ pub fn print_verify_report(report: &VerifyReport) {
     println!("  Verified          : {}", report.chunks_verified);
 
     println!("\nData");
-    println!("  Bytes verified    : {}", format_bytes(report.bytes_verified as usize));
+    println!("  Bytes verified    : {}", format_bytes(report.bytes_verified as f64));
 
     if report.issues.is_empty() {
         println!("\n✓ No integrity issues found.");

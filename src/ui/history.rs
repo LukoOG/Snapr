@@ -35,18 +35,18 @@ fn print_snapshot(snapshot: &Snapshot, current_snapshot_id: u32) {
         "  {} files · {} chunks · {}",
         snapshot.stats.file_count,
         snapshot.stats.chunk_count,
-        format_bytes(snapshot.stats.workspace_bytes as usize)
+        format_bytes(snapshot.stats.workspace_bytes as f64)
     );
 
     println!(
         "  +{} new chunks · +{} storage",
         snapshot.stats.new_chunks,
-        format_bytes(snapshot.stats.new_storage_bytes as usize)
+        format_bytes(snapshot.stats.new_storage_bytes as f64)
     );
 
     println!(
         "  Total storage · {}",
-        format_bytes(snapshot.stats.total_storage_bytes as usize)
+        format_bytes(snapshot.stats.total_storage_bytes as f64)
     );
 
     println!();

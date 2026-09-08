@@ -11,8 +11,8 @@ pub fn print_workspace_store_report(snapshot_id: u32, message: &str, report: &Wo
     println!("  Files processed : {}", report.total_files);
     println!("  Chunks processed: {}", report.total_chunks);
     println!(
-        "  Workspace size  : {}",
-        format_bytes(report.workspace_bytes)
+        "  Size of processed files  : {}",
+        format_bytes(report.workspace_bytes as f64)
     );
 
     println!("\nObject Store");
@@ -20,7 +20,7 @@ pub fn print_workspace_store_report(snapshot_id: u32, message: &str, report: &Wo
     println!("  Reused chunks   : {}", report.reused_chunks);
     println!(
         "  Additional Storage : {}",
-        format_bytes(report.new_storage_bytes)
+        format_bytes(report.new_storage_bytes as f64)
     );
 
     println!("\nEfficiency");

@@ -1,19 +1,19 @@
 use chrono::{DateTime, Utc, Local, TimeZone};
 
 #[inline]
-pub fn format_bytes(bytes: usize) -> String {
-    const KB: usize = 1 << 10;
-    const MB: usize = 1 << 20;
-    const GB: usize = 1 << 30;
+pub fn format_bytes(bytes: f64) -> String {
+    const KB: f64 = 1000.0;//1 << 10;
+    const MB: f64 = 1_000_000.0;
+    const GB: f64 = 1_000_000_000.0;
 
     if bytes < KB {
         return format!("{bytes} B")
     } else if bytes < MB {
-        return format!("{:.2} KB", bytes as f64 / KB as f64)
+        return format!("{:.2} KB", bytes / KB)
     } else if bytes < GB {
-        return format!("{:.2} MB", bytes as f64 / MB as f64)
+        return format!("{:.2} MB", bytes / MB)
     } else {
-        return format!("{:.2} GB", bytes as f64 / GB as f64)
+        return format!("{:.2} GB", bytes / GB)
     }
 }
 
