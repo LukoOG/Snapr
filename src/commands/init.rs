@@ -15,7 +15,7 @@ pub fn handle_init() -> Result<(), Box<dyn Error>> {
     fs::create_dir_all(OBJECTS_DIR)?;
     fs::write(
         CONFIG_FILE,
-        r#"{"version": 1,"repository_size":0}"#,
+        r#"{"version": 1,"total_storage_bytes":0}"#,
     )?;
     fs::write(SNAPSHOTS_FILE, "[]")?;
     fs::write(WORKSPACE_INDEX_FILE, r#"{"files":{}}"#)?;

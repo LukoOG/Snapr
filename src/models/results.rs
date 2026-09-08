@@ -10,7 +10,7 @@ pub struct FileProcessResult {
 pub struct ChunkStoreResult {
     pub stored: bool,
     pub original_size: usize,
-    pub compressed_size: usize,
+    pub stored_size: usize,
     //To aid in builder pipeline
     pub hash: String,
 }

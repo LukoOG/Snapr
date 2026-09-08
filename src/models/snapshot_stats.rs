@@ -24,11 +24,11 @@ impl From<&WorkspaceStoreReport> for SnapshotStats {
         SnapshotStats {
             file_count: report.total_files,
             chunk_count: report.total_chunks,
-            workspace_bytes: report.original_bytes as u64,
+            workspace_bytes: report.workspace_bytes as u64,
             new_chunks: report.new_chunks,
             reused_chunks: report.reused_chunks,
             new_storage_bytes: report.new_storage_bytes as u64,
-            total_storage_bytes: report.original_bytes as u64 + report.new_storage_bytes as u64,
+            total_storage_bytes: 0, // This will be updated later in the save command
         }
     }
 }

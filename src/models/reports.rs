@@ -38,7 +38,8 @@ pub struct FileStoreReport {
     pub total_chunks: usize,
     pub new_chunks: usize,
     pub reused_chunks: usize,
-    pub original_bytes: usize,
+
+    pub workspace_bytes: usize,
     pub new_storage_bytes: usize,
 }
 
@@ -50,18 +51,18 @@ pub struct WorkspaceStoreReport {
     pub new_chunks: usize,
     pub reused_chunks: usize,
 
-    pub original_bytes: usize,
+    pub workspace_bytes: usize,
     pub new_storage_bytes: usize,
 }
 
 impl FileStoreReport {
     pub fn record(&mut self, result: &ChunkStoreResult) {
         self.total_chunks += 1;
-        self.original_bytes += result.original_size;
+        self.workspace_bytes += result.original_size;
 
         if result.stored {
             self.new_chunks += 1;
-            self.new_storage_bytes += result.compressed_size;
+            self.new_storage_bytes += result.stored_size;
         } else {
             self.reused_chunks += 1;
         }
@@ -76,7 +77,7 @@ impl WorkspaceStoreReport {
         self.new_chunks += file.new_chunks;
         self.reused_chunks += file.reused_chunks;
 
-        self.original_bytes += file.original_bytes;
+        self.workspace_bytes += file.workspace_bytes;
         self.new_storage_bytes += file.new_storage_bytes;
     }
 
@@ -91,8 +92,8 @@ impl WorkspaceStoreReport {
 
     #[inline]
     pub fn compression_ratio(&self) -> f64 {
-        if self.original_bytes > 0 {
-            100.0 * (1.0 - self.new_storage_bytes as f64 / self.original_bytes as f64)
+        if self.workspace_bytes > 0 {
+            100.0 * (1.0 - self.new_storage_bytes as f64 / self.workspace_bytes as f64)
         } else {
             0.0
         }

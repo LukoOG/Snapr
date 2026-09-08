@@ -12,7 +12,7 @@ pub fn store_chunk(chunk: CompressedChunk) -> SnaprResult<ChunkStoreResult> {
             hash: chunk.hash,
             stored: false,
             original_size: chunk.original_size,
-            compressed_size: chunk.object_bytes.len(),
+            stored_size: chunk.object_bytes.len(),
         });
     }
 
@@ -22,7 +22,7 @@ pub fn store_chunk(chunk: CompressedChunk) -> SnaprResult<ChunkStoreResult> {
         hash: chunk.hash,
         stored: true,
         original_size: chunk.original_size,
-        compressed_size: chunk.object_bytes.len(),
+        stored_size: chunk.object_bytes.len(),
     })
 }
 

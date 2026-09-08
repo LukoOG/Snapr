@@ -8,7 +8,8 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
 
     let (entries, report) = build_snapshot_entries()?;
     let next_id = snapshots.iter().map(|s| s.id).max().unwrap_or(0) + 1;
-    let stats = SnapshotStats::from(&report);
+    let mut stats = SnapshotStats::from(&report);
+    stats.total_storage_bytes = config.total_storage_bytes + report.new_storage_bytes as u64;
     let new_snapshot = Snapshot {
         id: next_id,
         message,
@@ -22,7 +23,7 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
 
     //config
     config.update_current_snapshot();
-    config.update_repository_size(report.new_storage_bytes as u64);
+    config.update_total_storage_bytes(report.new_storage_bytes as u64);
     save_config(&config)?;
     Ok(report)
 }
