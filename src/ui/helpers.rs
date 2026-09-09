@@ -1,19 +1,21 @@
-use chrono::{DateTime, Utc, Local, TimeZone};
+use chrono::{DateTime, Local, TimeZone, Utc};
+
+use crate::commands::models::DiffResult;
 
 #[inline]
 pub fn format_bytes(bytes: f64) -> String {
-    const KB: f64 = 1000.0;//1 << 10;
+    const KB: f64 = 1000.0; //1 << 10;
     const MB: f64 = 1_000_000.0;
     const GB: f64 = 1_000_000_000.0;
 
     if bytes < KB {
-        return format!("{bytes} B")
+        return format!("{bytes} B");
     } else if bytes < MB {
-        return format!("{:.2} KB", bytes / KB)
+        return format!("{:.2} KB", bytes / KB);
     } else if bytes < GB {
-        return format!("{:.2} MB", bytes / MB)
+        return format!("{:.2} MB", bytes / MB);
     } else {
-        return format!("{:.2} GB", bytes / GB)
+        return format!("{:.2} GB", bytes / GB);
     }
 }
 
@@ -21,12 +23,13 @@ pub fn format_bytes(bytes: f64) -> String {
 pub fn format_timestamp(timestamp_secs: u64) -> String {
     // 1. Convert the u64 to an i64 safely
     let i64_timestamp = timestamp_secs as i64;
-    
+
     // 2. Create a UTC DateTime from the timestamp
-    let datetime_utc = Utc.timestamp_opt(i64_timestamp, 0)
+    let datetime_utc = Utc
+        .timestamp_opt(i64_timestamp, 0)
         .single()
         .expect("Invalid timestamp");
-        
+
     // 3. Optional: Convert to local time if required for presentation
     let datetime_local: DateTime<Local> = DateTime::from(datetime_utc);
 
@@ -49,4 +52,25 @@ pub(super) fn print_section(title: &str, symbol: char, entries: &[String]) {
     for entry in entries {
         println!("{} {}", symbol, entry)
     }
+}
+
+pub(super) fn change_summary(diff: &DiffResult) -> String {
+    [
+        (
+            !diff.added.is_empty(),
+            format!("{} added", diff.added.len()),
+        ),
+        (
+            !diff.modified.is_empty(),
+            format!("{} modified", diff.modified.len()),
+        ),
+        (
+            !diff.removed.is_empty(),
+            format!("{} removed", diff.removed.len()),
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(show, text)| show.then_some(text))
+    .collect::<Vec<_>>()
+    .join(" · ")
 }

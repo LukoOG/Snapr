@@ -47,7 +47,7 @@ fn main() -> SnaprResult<()> {
             scoped_timer!("Diff pipeline");
             let snapshots = load_snapshots()?;
             let diff = handle_diff(&snapshots, old, new)?;
-            ui::print_diff(&diff);
+            ui::print_diff(&diff, old, new);
             Ok(())
         }
         Command::Restore(restore_options) => {

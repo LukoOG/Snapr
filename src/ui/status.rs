@@ -1,16 +1,15 @@
-use crate::{commands::models::DiffResult, ui::print_section};
+use crate::{
+    commands::models::DiffResult,
+    ui::{change_summary, print_section},
+};
 
 pub fn print_status(diff: &DiffResult) {
+    println!("Current Workspace Status");
     if diff.added.is_empty() && diff.modified.is_empty() && diff.removed.is_empty() {
         println!("Workspace is clean!");
         return;
     }
-    println!(
-        "{} added, {} modified, {} removed",
-        diff.added.len(),
-        diff.modified.len(),
-        diff.removed.len()
-    );
+    println!("{}", change_summary(&diff));
     print_section("Added", '+', &diff.added);
     print_section("Modified", '~', &diff.modified);
     print_section("Removed", '-', &diff.removed);
