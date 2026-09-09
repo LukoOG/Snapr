@@ -46,7 +46,8 @@ fn main() -> SnaprResult<()> {
         Command::Diff(old, new) => {
             scoped_timer!("Diff pipeline");
             let snapshots = load_snapshots()?;
-            handle_diff(&snapshots, old, new)?;
+            let diff = handle_diff(&snapshots, old, new)?;
+            ui::print_diff(&diff);
             Ok(())
         }
         Command::Restore(restore_options) => {
@@ -64,7 +65,8 @@ fn main() -> SnaprResult<()> {
             scoped_timer!("Status pipeline");
             let snapshots = load_snapshots()?;
             let entries = build_entries()?; //current workspace entries
-            handle_status(&snapshots, entries)?;
+            let diff = handle_status(&snapshots, entries)?;
+            ui::print_status(&diff);
             Ok(())
         }
         Command::Verify => {

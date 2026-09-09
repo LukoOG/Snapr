@@ -1,7 +1,7 @@
 type FilePath = String;
 
 #[derive(Debug)]
-pub(super) struct DiffResult {
+pub struct DiffResult {
     pub added: Vec<FilePath>,
     pub modified: Vec<FilePath>,
     pub removed: Vec<FilePath>,

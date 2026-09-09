@@ -1,4 +1,4 @@
-use super::helpers::calculate_diff;
+use super::helpers::compare_snapshots;
 use crate::commands::models::RestoreOptions;
 use crate::error::SnaprResult;
 use crate::filesystem::restore_file;
@@ -41,7 +41,7 @@ pub fn handle_restore(
         .ok_or("Snapshot not found")?;
     let current_workspace = WorkspaceSnapshot::build(build_entries()?);
 
-    let diff = calculate_diff(&current_workspace, target_snapshot);
+    let diff = compare_snapshots(&current_workspace, target_snapshot);
 
     let restored = diff.added.len() + diff.modified.len();
     let removed = diff.removed.len();

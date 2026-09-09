@@ -38,3 +38,15 @@ pub fn format_timestamp(timestamp_secs: u64) -> String {
     // %p = AM/PM indicator (e.g., PM)
     datetime_local.format("%b %-d, %-I:%M %p").to_string()
 }
+
+pub(super) fn print_section(title: &str, symbol: char, entries: &[String]) {
+    if entries.is_empty() {
+        return;
+    }
+
+    println!("\n {}", title);
+
+    for entry in entries {
+        println!("{} {}", symbol, entry)
+    }
+}

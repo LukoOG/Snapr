@@ -1,19 +1,19 @@
 use crate::{
     storage::load_config, error::SnaprResult, models::{FileEntry, Snapshot, WorkspaceSnapshot},
 };
-use super::{helpers::compare_snapshots};
+use super::{helpers::compare_snapshots, models::DiffResult};
 
 // pub fn handle_status<V: AsRef<Vec<FileEntry>> + Iterator>(snapshots: &[Snapshot], entries: V) -> Result<(), Box<dyn Error>> {
 pub fn handle_status(
     snapshots: &[Snapshot],
     entries: Vec<FileEntry>,
-) -> SnaprResult<()> {
+) -> SnaprResult<DiffResult> {
     let config = load_config()?;
     let workspace_id = match config.current_snapshot {
         Some(id) => id,
         None => {
             eprintln!("No snapshots yet");
-            return Ok(())
+            return Ok(DiffResult::default())
         },
     };
     //compare current snapshot and current workspace state
@@ -24,6 +24,5 @@ pub fn handle_status(
 
     let workspace = WorkspaceSnapshot::build(entries);
 
-    compare_snapshots(snapshot, &workspace, "Current Workspace Status");
-    Ok(())
+    Ok(compare_snapshots(snapshot, &workspace))
 }
