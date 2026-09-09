@@ -1,6 +1,7 @@
 /target
 .snapr
 .cargo
+.vscode
 hello.txt
 demo.tape
 demo.mp4

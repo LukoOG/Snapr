@@ -9,4 +9,3 @@ pub mod object_store;
 pub use config::*;
 pub use chunk::*;
 pub use snapshots::*;
-pub use object_store::*;

@@ -1,4 +1,4 @@
-use std::{dbg, fs, path::Path};
+use std::{fs, path::Path};
 
 use crate::{
     error::SnaprResult,

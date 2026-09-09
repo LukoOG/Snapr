@@ -45,12 +45,3 @@ impl SnapshotFiles for WorkspaceSnapshot {
         &self.files
     }
 }
-
-impl FileEntry {
-    pub fn build(path: String, hashes: Vec<String>) -> Self {
-        FileEntry {
-            path,
-            chunk_hashes: hashes,
-        }
-    }
-}

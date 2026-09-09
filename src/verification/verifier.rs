@@ -148,6 +148,6 @@ pub fn verify_repository(snapshots: &[Snapshot]) -> SnaprResult<VerifyReport> {
         }
     }
     report.total_chunks = verified_chunks.len();
-    report.files_checked = verified_files.len();
+    report.unique_file_versions_checked = verified_files.len();
     Ok(report)
 }

@@ -2,35 +2,22 @@ use super::results::*;
 use thiserror::Error;
 
 #[allow(unused)]
-
 #[derive(Debug, Error)]
 pub enum VerifyIssue {
     #[error("missing chunk: {hash}")]
-    MissingChunk {
-        hash: String,
-    },
+    MissingChunk { hash: String },
 
     #[error("invalid header for chunk: {hash}")]
-    InvalidHeader {
-        hash: String,
-    },
+    InvalidHeader { hash: String },
 
     #[error("unsupported compression ({compression}) for chunk: {hash}")]
-    UnsupportedCompression {
-        hash: String,
-        compression: u8,
-    },
+    UnsupportedCompression { hash: String, compression: u8 },
 
     #[error("Chunk contents do not satify metadata: {hash}")]
-    CorruptedChunk {
-        hash: String,
-    },
+    CorruptedChunk { hash: String },
 
     #[error("Object successfully decompressed but got {expected} instead of {actual}")]
-    HashMismatch {
-        expected: String,
-        actual: String,
-    },
+    HashMismatch { expected: String, actual: String },
 }
 
 #[derive(Default)]
@@ -132,7 +119,7 @@ pub struct SnapshotVerifyReport {
 pub struct VerifyReport {
     pub snapshots_checked: usize,
 
-    pub files_checked: usize,
+    pub unique_file_versions_checked: usize,
 
     pub chunks_verified: usize,
     pub chunks_referenced: usize,
@@ -169,10 +156,10 @@ impl SnapshotVerifyReport {
 
 impl VerifyReport {
     pub fn merge(&mut self, report: SnapshotVerifyReport) {
-        self.files_checked += report.files_checked;
-        
+        //File versions checked is done in the verifier.rs file, not here. 
+        //This is because we want to count the number of unique files checked across all snapshots, not just the number of snapshots checked.
         self.chunks_verified += report.chunks_verified;
-        
+
         self.bytes_verified += report.bytes_verified;
         self.issues.extend(report.issues);
     }
