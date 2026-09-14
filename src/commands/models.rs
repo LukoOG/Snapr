@@ -1,3 +1,5 @@
+use clap::Args;
+
 type FilePath = String;
 
 #[derive(Debug)]
@@ -17,8 +19,13 @@ impl Default for DiffResult {
     }
 }
 
+#[derive(Args)]
 pub struct RestoreOptions {
     pub snapshot_id: u32,
+
+    #[arg(long)]
     pub force: bool,
+
+    #[arg(long)]
     pub dry_run: bool,
 }

@@ -1,9 +1,14 @@
 use std::cmp;
+use clap::Parser;
+use crate::{commands::{Command, models::RestoreOptions}, error::SnaprResult};
 
-use crate::{
-    commands::{Command, models::RestoreOptions},
-    error::SnaprResult,
-};
+#[derive(Parser)]
+#[command(name = "snapr")]
+#[command(about = "A lightweight content-addressed snapshot tool")]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Command,
+}
 
 fn parse_snapshot_id(args: &[String], index: usize, name: &str) -> u32 {
     args.get(index)
@@ -39,14 +44,16 @@ pub fn parse_args(args: &[String]) -> SnaprResult<Command> {
             let id_1 = parse_snapshot_id(args, 2, "old");
             let id_2 = parse_snapshot_id(args, 3, "new");
 
-            let old_id = cmp::min(id_1, id_2);
-            let new_id = cmp::max(id_1, id_2);
+            let old = cmp::min(id_1, id_2);
+            let new = cmp::max(id_1, id_2);
 
-            Ok(Command::Diff(old_id, new_id))
+            Ok(Command::Diff{ old, new })
         }
         "restore" => {
             let snapshot_id = match args.get(2) {
-                Some(id) => id.parse::<u32>().map_err(|_| "Snapshot id must be an integer")?,
+                Some(id) => id
+                    .parse::<u32>()
+                    .map_err(|_| "Snapshot id must be an integer")?,
                 None => return Err("Provide snapshot id".into()),
             };
 

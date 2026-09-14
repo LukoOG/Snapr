@@ -11,9 +11,11 @@ mod storage;
 mod ui;
 mod verification;
 
-use cli::parse_args;
+use clap::Parser;
+use cli::Cli;
 use commands::{
-    Command, diff::handle_diff, history::handle_history, init::handle_init,
+    Command,
+    diff::handle_diff, history::handle_history, init::handle_init,
     restore::handle_restore, save::handle_save, status::handle_status, verify::handle_verify,
 };
 use error::SnaprResult;
@@ -28,11 +30,11 @@ fn main() {
 }
 
 fn run() -> SnaprResult<()> {
-    let args: Vec<String> = env::args().collect();
+    // let args: Vec<String> = env::args().collect();
 
-    let command = parse_args(&args)?;
+    let cli = cli::Cli::parse();
 
-    match command {
+    match cli.command {
         Command::Init => {
             handle_init()?;
             ui::print_init_success();
@@ -55,7 +57,7 @@ fn run() -> SnaprResult<()> {
             );
             Ok(())
         }
-        Command::Diff(old, new) => {
+        Command::Diff{old, new} => {
             scoped_timer!("Diff pipeline");
             let snapshots = load_snapshots()?;
             let diff = handle_diff(&snapshots, old, new)?;
