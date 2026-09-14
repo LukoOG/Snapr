@@ -1,6 +1,9 @@
-use std::{cmp};
+use std::cmp;
 
-use crate::commands::{Command, models::RestoreOptions};
+use crate::{
+    commands::{Command, models::RestoreOptions},
+    error::SnaprResult,
+};
 
 fn parse_snapshot_id(args: &[String], index: usize, name: &str) -> u32 {
     args.get(index)
@@ -11,7 +14,7 @@ fn parse_snapshot_id(args: &[String], index: usize, name: &str) -> u32 {
         ))
 }
 
-pub fn parse_args(args: &[String]) -> Command {
+pub fn parse_args(args: &[String]) -> SnaprResult<Command> {
     let length = args.len();
     if length < 2 {
         eprintln!("No arguements provided!");
@@ -21,16 +24,15 @@ pub fn parse_args(args: &[String]) -> Command {
     let arg = args[1].as_str();
 
     match arg {
-        "init" => Command::Init,
-        "history" => Command::History,
+        "init" => Ok(Command::Init),
+        "history" => Ok(Command::History),
         "save" => {
             if let Some(message) = args.get(2) {
-                return Command::Save {
+                return Ok(Command::Save {
                     message: message.clone(),
-                };
+                });
             } else {
-                eprintln!("Message not provided!");
-                std::process::exit(1)
+                return Err("Message not provided!".into());
             }
         }
         "diff" => {
@@ -40,40 +42,25 @@ pub fn parse_args(args: &[String]) -> Command {
             let old_id = cmp::min(id_1, id_2);
             let new_id = cmp::max(id_1, id_2);
 
-            Command::Diff(old_id, new_id)
+            Ok(Command::Diff(old_id, new_id))
         }
         "restore" => {
             let snapshot_id = match args.get(2) {
-                Some(id) => match id.parse::<u32>() {
-                    Ok(id) => id,
-                    Err(_) => {
-                        eprintln!("Snapshot id must be an integer");
-                        std::process::exit(1);
-                    }
-                },
-                None => {
-                    eprintln!("Provide snapshot id");
-                    std::process::exit(1);
-                }
+                Some(id) => id.parse::<u32>().map_err(|_| "Snapshot id must be an integer")?,
+                None => return Err("Provide snapshot id".into()),
             };
 
             let force = args.iter().any(|arg| arg == "--force");
             let dry_run = args.iter().any(|arg| arg == "--dry-run");
 
-            Command::Restore(RestoreOptions {
+            Ok(Command::Restore(RestoreOptions {
                 snapshot_id,
                 force,
                 dry_run,
-            })
+            }))
         }
-        "status" => Command::Status,
-        "verify" => {
-
-            Command::Verify
-        },
-        _ => {
-            eprintln!("Unknown Command!");
-            std::process::exit(1)
-        }
+        "status" => Ok(Command::Status),
+        "verify" => Ok(Command::Verify),
+        _ => Err("Unknown Command!".into()),
     }
 }

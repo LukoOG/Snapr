@@ -1,20 +1,16 @@
-use crate::{error::SnaprResult, models::Snapshot, storage::load_config, ui::print_history};
+use crate::{error::SnaprResult, models::Snapshot, storage::load_config};
 
-pub fn handle_history(snapshots: &[Snapshot]) -> SnaprResult<()> {
+pub fn handle_history(snapshots: &[Snapshot]) -> SnaprResult<u32> {
     let config = load_config()?;
     if snapshots.is_empty() {
-        println!("No snapshots yet!");
-        return Ok(());
+        return Err("No snapshots yet!".into())
     }
 
     let current_id = match config.current_snapshot {
         Some(id) => id,
         None => {
-            println!("No current snapshot set.");
-            return Ok(());
+            return Err("No current snapshot set.".into())
         }
     };
-    print_history(snapshots, current_id);
-
-    Ok(())
+    Ok(current_id)
 }

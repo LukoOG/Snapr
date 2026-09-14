@@ -1,15 +1,13 @@
-use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-use crate::constants::{CONFIG_FILE, OBJECTS_DIR, SNAPSHOTS_FILE, WORKSPACE_INDEX_FILE};
+use crate::{constants::{CONFIG_FILE, OBJECTS_DIR, SNAPSHOTS_FILE, WORKSPACE_INDEX_FILE}, error::SnaprResult};
 
-pub fn handle_init() -> Result<(), Box<dyn Error>> {
+pub fn handle_init() -> SnaprResult<()> {
     let path = Path::new(".snapr");
 
     if path.exists() {
-        println!("Snapr already initialized!");
-        return Ok(());
+        return Err("Snapr already initialized!".into());
     }
 
     fs::create_dir_all(OBJECTS_DIR)?;
@@ -19,7 +17,6 @@ pub fn handle_init() -> Result<(), Box<dyn Error>> {
     )?;
     fs::write(SNAPSHOTS_FILE, "[]")?;
     fs::write(WORKSPACE_INDEX_FILE, r#"{"files":{}}"#)?;
-    println!("Initialized snapr workspace");
 
     Ok(())
 }

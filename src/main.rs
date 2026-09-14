@@ -20,16 +20,28 @@ use error::SnaprResult;
 use processing::build_entries;
 use storage::load_snapshots;
 
-fn main() -> SnaprResult<()> {
+fn main() {
+    if let Err(error) = run() {
+        ui::print_error(error);
+        std::process::exit(1);
+    }
+}
+
+fn run() -> SnaprResult<()> {
     let args: Vec<String> = env::args().collect();
 
-    let command = parse_args(&args);
+    let command = parse_args(&args)?;
 
-    let _ = match command {
-        Command::Init => handle_init(),
+    match command {
+        Command::Init => {
+            handle_init()?;
+            ui::print_init_success();
+            Ok(())
+        }
         Command::History => {
             let snapshots = load_snapshots()?;
-            handle_history(&snapshots)?;
+            let current_id = handle_history(&snapshots)?;
+            ui::print_history(&snapshots, current_id);
             Ok(())
         }
         Command::Save { message } => {
@@ -56,7 +68,7 @@ fn main() -> SnaprResult<()> {
             let report = handle_restore(&snapshots, restore_options)?;
             if report.dry_run {
                 ui::print_restore_dry_run_report(&report);
-            } else if !report.dry_run {
+            } else {
                 ui::print_restore_report(&report);
             }
             Ok(())
@@ -76,6 +88,5 @@ fn main() -> SnaprResult<()> {
             ui::print_verify_report(&report);
             Ok(())
         }
-    };
-    Ok(())
+    }
 }
