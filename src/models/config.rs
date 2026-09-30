@@ -20,11 +20,8 @@ impl SnaprConfig {
         self.total_storage_bytes += size;
     }
 
-    pub fn update_current_snapshot(&mut self) {
-        match self.current_snapshot {
-            None => self.current_snapshot = Some(1),
-            Some(id) => self.current_snapshot = Some(1 + id),
-        }
+    pub fn update_current_snapshot(&mut self, id: u32) {
+        self.current_snapshot = Some(id)
     }
 
     pub fn set_current_snapshot(&mut self, id: u32) {

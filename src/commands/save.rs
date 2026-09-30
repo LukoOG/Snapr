@@ -22,7 +22,7 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
     fs::write(SNAPSHOTS_FILE, json)?;
 
     //config
-    config.update_current_snapshot();
+    config.update_current_snapshot(next_id);
     config.update_total_storage_bytes(report.new_storage_bytes as u64);
     save_config(&config)?;
     Ok(report)

@@ -106,3 +106,95 @@ impl<R: Read> ChunkReader<R> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn collect_chunks<R: std::io::Read>(reader: R, chunk_size: usize) -> Vec<Chunk> {
+        let mut cr = ChunkReader::new(reader, chunk_size);
+        let mut chunks = Vec::new();
+        while let Some(chunk) = cr.next_chunk().expect("read error") {
+            chunks.push(chunk);
+        }
+        chunks
+    }
+
+    // Invariant 7: Empty input → zero chunks.
+    #[test]
+    fn empty_reader_yields_no_chunks() {
+        let chunks = collect_chunks(std::io::empty(), 8);
+        assert!(chunks.is_empty());
+    }
+
+    // Chunk size of 0 → zero chunks (guard against infinite-loop risk).
+    #[test]
+    fn zero_chunk_size_yields_no_chunks() {
+        let data: &[u8] = b"hello";
+        let chunks = collect_chunks(data, 0);
+        assert!(chunks.is_empty());
+    }
+
+    // Invariant 6: Input smaller than chunk_size → exactly one chunk with all bytes.
+    #[test]
+    fn input_smaller_than_chunk_size_yields_one_chunk() {
+        let data: &[u8] = b"hello";
+        let chunks = collect_chunks(data, 64);
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(chunks[0].bytes, b"hello");
+        assert_eq!(chunks[0].index, 0);
+    }
+
+    // Invariant 8: Input exactly equal to chunk_size → one full chunk.
+    #[test]
+    fn input_exactly_chunk_size_yields_one_full_chunk() {
+        let data: Vec<u8> = (0u8..16).collect();
+        let chunks = collect_chunks(data.as_slice(), 16);
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(chunks[0].bytes.len(), 16);
+        assert_eq!(chunks[0].bytes, data);
+    }
+
+    // Invariant 5: Multiple chunks reconstruct the original data.
+    #[test]
+    fn multiple_chunks_reconstruct_original() {
+        let data: Vec<u8> = (0u8..=255).cycle().take(100).collect();
+        let chunk_size = 16;
+        let chunks = collect_chunks(data.as_slice(), chunk_size);
+
+        // Concatenate all chunk bytes.
+        let reconstructed: Vec<u8> = chunks.iter().flat_map(|c| c.bytes.iter().copied()).collect();
+        assert_eq!(reconstructed, data);
+    }
+
+    // Chunk indices must be sequential starting from 0.
+    #[test]
+    fn chunk_indices_are_sequential() {
+        let data: Vec<u8> = vec![0u8; 50];
+        let chunks = collect_chunks(data.as_slice(), 16);
+        for (i, chunk) in chunks.iter().enumerate() {
+            assert_eq!(chunk.index, i, "chunk index mismatch at position {i}");
+        }
+    }
+
+    // Exact multiple of chunk_size → all chunks are full, last included.
+    #[test]
+    fn exact_multiple_of_chunk_size() {
+        let data: Vec<u8> = vec![42u8; 32];
+        let chunks = collect_chunks(data.as_slice(), 8);
+        assert_eq!(chunks.len(), 4);
+        for chunk in &chunks {
+            assert_eq!(chunk.bytes.len(), 8);
+        }
+    }
+
+    // Last chunk may be partial when data is not a multiple of chunk_size.
+    #[test]
+    fn last_chunk_is_partial_when_not_multiple() {
+        let data: Vec<u8> = vec![1u8; 10];
+        let chunks = collect_chunks(data.as_slice(), 3);
+        // 10 bytes / 3 = 3 full + 1 partial
+        assert_eq!(chunks.len(), 4);
+        assert_eq!(chunks[3].bytes.len(), 1);
+    }
+}

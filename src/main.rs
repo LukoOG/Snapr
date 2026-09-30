@@ -1,26 +1,13 @@
-use std::env;
-mod bench;
-mod cli;
-mod commands;
-mod constants;
-mod error;
-mod filesystem;
-mod models;
-mod processing;
-mod storage;
-mod ui;
-mod verification;
-
-use clap::Parser;
-use cli::Cli;
-use commands::{
+use snapr::commands::{
     Command,
     diff::handle_diff, history::handle_history, init::handle_init,
     restore::handle_restore, save::handle_save, status::handle_status, verify::handle_verify,
 };
-use error::SnaprResult;
-use processing::build_entries;
-use storage::load_snapshots;
+use snapr::error::SnaprResult;
+use snapr::processing::build_entries;
+use snapr::storage::load_snapshots;
+use snapr::{scoped_timer, ui};
+use clap::Parser;
 
 fn main() {
     if let Err(error) = run() {
@@ -30,9 +17,7 @@ fn main() {
 }
 
 fn run() -> SnaprResult<()> {
-    // let args: Vec<String> = env::args().collect();
-
-    let cli = cli::Cli::parse();
+    let cli = snapr::cli::Cli::parse();
 
     match cli.command {
         Command::Init => {
@@ -57,7 +42,7 @@ fn run() -> SnaprResult<()> {
             );
             Ok(())
         }
-        Command::Diff{old, new} => {
+        Command::Diff { old, new } => {
             scoped_timer!("Diff pipeline");
             let snapshots = load_snapshots()?;
             let diff = handle_diff(&snapshots, old, new)?;
@@ -78,7 +63,7 @@ fn run() -> SnaprResult<()> {
         Command::Status => {
             scoped_timer!("Status pipeline");
             let snapshots = load_snapshots()?;
-            let entries = build_entries()?; //current workspace entries
+            let entries = build_entries()?;
             let diff = handle_status(&snapshots, entries)?;
             ui::print_status(&diff);
             Ok(())

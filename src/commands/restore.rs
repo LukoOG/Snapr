@@ -24,15 +24,14 @@ pub fn handle_restore(
 
     //check if on current snapshot
     if config.current_snapshot == Some(snapshot_id) && !force {
-        println!(
-            "Already on snapshot {}.\nUse --force to restore anyway.",
-            snapshot_id
-        );
-        std::process::exit(0);
-        // return Ok(RestoreReport {
-        //     snapshot_id,
-        //     ..Default::default()
-        // });
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            format!(
+                "Already on snapshot {}.\nUse --force to restore anyway.",
+                snapshot_id
+            ),
+        )
+        .into());
     }
 
     let target_snapshot = snapshots
@@ -45,7 +44,7 @@ pub fn handle_restore(
 
     let restored = diff.added.len() + diff.modified.len();
     let removed = diff.removed.len();
-    let skipped = target_snapshot.files.len() - restored;
+    let skipped = target_snapshot.files.len().saturating_sub(restored);
 
     if dry_run {
         return Ok(RestoreReport {

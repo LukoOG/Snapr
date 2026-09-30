@@ -87,7 +87,7 @@ impl WorkspaceStoreReport {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct RestoreReport {
     pub snapshot_id: u32,
 
