@@ -34,7 +34,7 @@ fn end_to_end_init_save_modify_save_diff_restore_verify() {
         assert_eq!(config.current_snapshot, Some(1));
 
         // ── Step 3: Modify workspace ──
-        write_file("project/main.rs", b"fn main() { println!(\"version two — updated\"); }");
+        write_file("project/main.rs", b"fn main() { println!(\"version two - updated\"); }");
         fs::remove_file("project/lib.rs").unwrap();
         write_file("project/new_module.rs", b"pub mod new_mod {}");
 
@@ -131,7 +131,7 @@ fn diff_is_directional() {
         let mut snaps = load_snapshots().unwrap();
         handle_save(&mut snaps, "s1".to_string()).unwrap();
 
-        write_file("f.txt", b"version two — different length content");
+        write_file("f.txt", b"version two - different length content");
         let mut snaps = load_snapshots().unwrap();
         handle_save(&mut snaps, "s2".to_string()).unwrap();
 

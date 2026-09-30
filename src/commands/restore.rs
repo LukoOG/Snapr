@@ -3,9 +3,11 @@ use crate::commands::models::RestoreOptions;
 use crate::error::SnaprResult;
 use crate::filesystem::restore_file;
 use crate::models::{RestoreReport, Snapshot, WorkspaceSnapshot};
+use crate::models::workspace_index::IndexedFile;
 use crate::processing::build_entries;
 use crate::scoped_timer;
 use crate::storage::{load_config, save_config};
+use crate::storage::workspace_index::{load_workspace_index, save_workspace_index};
 
 use std::collections::HashMap;
 use std::fs;
@@ -63,8 +65,12 @@ pub fn handle_restore(
         .map(|f| (f.path.as_str(), f.chunk_hashes.clone()))
         .collect::<HashMap<_, _>>();
 
+    let mut index = load_workspace_index()?;
+
+    // Remove deleted files from the index.
     for path in &diff.removed {
         fs::remove_file(path)?;
+        index.remove(path);
     }
 
     let mut restored_bytes = 0_u64;
@@ -73,7 +79,20 @@ pub fn handle_restore(
             .get(path.as_str())
             .ok_or("Missing file in snapshot")?;
         restored_bytes += restore_file(path, hashes)?;
+
+        // Record the freshly-written file's mtime + size in the index so that
+        // the next build_entries call (status / restore) gets a cache hit.
+        let meta = fs::metadata(path)?;
+        let modified = meta
+            .modified()
+            .ok()
+            .and_then(|m| m.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        index.insert(path.clone(), IndexedFile::new(modified, meta.len(), hashes.clone()));
     }
+
+    save_workspace_index(&index)?;
 
     //config
     config.set_current_snapshot(snapshot_id);
