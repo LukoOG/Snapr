@@ -39,11 +39,11 @@ pub fn build_entry(
 
     match index.lookup(path.to_string_lossy().as_ref()) {
         IndexLookup::Hit(cached) if cached.matches(&metadata) => {
-            return Ok(EntryBuildResult {
+            Ok(EntryBuildResult {
                 path: path_string.clone(),
                 report: FileStoreReport::default(),
                 cache_entry: cached.clone(),
-            });
+            })
         }
 
         _ => {

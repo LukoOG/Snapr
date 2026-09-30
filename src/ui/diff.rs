@@ -9,7 +9,7 @@ pub fn print_diff(diff: &DiffResult, old: u32, new: u32) {
         println!("Workspace is clean!");
         return;
     }
-    println!("{}", change_summary(&diff));
+    println!("{}", change_summary(diff));
     print_section("Added", '+', &diff.added);
     print_section("Modified", '~', &diff.modified);
     print_section("Removed", '-', &diff.removed);

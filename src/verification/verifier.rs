@@ -53,7 +53,7 @@ pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
     let compressed = &object[HEADER_SIZE..];
     // 4. Decompress according to compression type
     let contents = match compression {
-        x if x == CompressionType::Zstd => zstd::decode_all(compressed)?,
+        CompressionType::Zstd => zstd::decode_all(compressed)?,
 
         _ => {
             return Ok(ChunkVerificationResult::Issue(

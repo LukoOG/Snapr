@@ -7,10 +7,10 @@ fn should_skip(entry: &DirEntry) -> bool {
 
     match entry.file_type() {
         t if t.is_dir() => {
-            return matches!(name, Some(".git" | "target" | ".snapr"))
+            matches!(name, Some(".git" | "target" | ".snapr"))
         }
         _ => {
-            return matches!(name, Some(".DS_Store"))
+            matches!(name, Some(".DS_Store"))
         }
     }
 }

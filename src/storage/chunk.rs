@@ -43,7 +43,7 @@ pub fn read_chunk(hash: &str) -> SnaprResult<Vec<u8>> {
     let _original_size = u64::from_le_bytes(object[8..16].try_into()?);
 
     let compressed = &object[HEADER_SIZE..];
-    let contents = decode_all(&compressed[..])?;
+    let contents = decode_all(compressed)?;
 
     Ok(contents)
 }

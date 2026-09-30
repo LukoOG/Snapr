@@ -9,13 +9,13 @@ pub fn format_bytes(bytes: f64) -> String {
     const GB: f64 = 1_000_000_000.0;
 
     if bytes < KB {
-        return format!("{bytes} B");
+        format!("{bytes} B")
     } else if bytes < MB {
-        return format!("{:.2} KB", bytes / KB);
+        format!("{:.2} KB", bytes / KB)
     } else if bytes < GB {
-        return format!("{:.2} MB", bytes / MB);
+        format!("{:.2} MB", bytes / MB)
     } else {
-        return format!("{:.2} GB", bytes / GB);
+        format!("{:.2} GB", bytes / GB)
     }
 }
 
