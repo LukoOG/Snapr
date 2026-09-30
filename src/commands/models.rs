@@ -3,21 +3,13 @@ use clap::Args;
 type FilePath = String;
 
 #[derive(Debug)]
+#[derive(Default)]
 pub struct DiffResult {
     pub added: Vec<FilePath>,
     pub modified: Vec<FilePath>,
     pub removed: Vec<FilePath>,
 }
 
-impl Default for DiffResult {
-    fn default() -> Self {
-        DiffResult {
-            added: Vec::new(),
-            modified: Vec::new(),
-            removed: Vec::new(),
-        }
-    }
-}
 
 #[derive(Args)]
 pub struct RestoreOptions {

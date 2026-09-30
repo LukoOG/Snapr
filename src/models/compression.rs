@@ -38,9 +38,9 @@ impl TryFrom<u8> for CompressionType {
     }
 }
 
-impl Into<u8> for CompressionType {
-    fn into(self) -> u8 {
-        match self {
+impl From<CompressionType> for u8 {
+    fn from(val: CompressionType) -> Self {
+        match val {
             CompressionType::None => 0,
             CompressionType::Zstd => 1,
             // _ => 0,

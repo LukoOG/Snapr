@@ -7,6 +7,12 @@ pub struct SnaprConfig {
     pub total_storage_bytes: u64,
 }
 
+impl Default for SnaprConfig {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SnaprConfig {
     pub fn new() -> Self {
         SnaprConfig {

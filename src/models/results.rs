@@ -31,11 +31,11 @@ pub enum ChunkVerificationResult {
     Issue(VerifyIssue),
 }
 
-impl Into<FileEntry> for EntryBuildResult {
-    fn into(self) -> FileEntry {
+impl From<EntryBuildResult> for FileEntry {
+    fn from(val: EntryBuildResult) -> Self {
         FileEntry {
-            path: self.path,
-            chunk_hashes: self.cache_entry.chunk_hashes,
+            path: val.path,
+            chunk_hashes: val.cache_entry.chunk_hashes,
         }
     }
 }
