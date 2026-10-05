@@ -9,7 +9,7 @@ pub fn handle_status(
     entries: Vec<FileEntry>,
 ) -> SnaprResult<DiffResult> {
     let config = load_config()?;
-    let workspace_id = match config.current_snapshot {
+    let workspace_id = match config.get_current_snapshot_id() {
         Some(id) => id,
         None => {
             eprintln!("No snapshots yet");

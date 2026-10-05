@@ -9,9 +9,10 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
     let (entries, report) = build_snapshot_entries()?;
     let next_id = snapshots.iter().map(|s| s.id).max().unwrap_or(0) + 1;
     let mut stats = SnapshotStats::from(&report);
-    stats.total_storage_bytes = config.total_storage_bytes + report.new_storage_bytes as u64;
+    stats.total_storage_bytes = config.get_total_storage_bytes() + report.new_storage_bytes as u64;
     let new_snapshot = Snapshot {
         id: next_id,
+        parent_id: config.get_current_snapshot_id(),
         message,
         files: entries,
         created_at: chrono::Utc::now().timestamp() as u64,
@@ -22,7 +23,7 @@ pub fn handle_save(snapshots: &mut Vec<Snapshot>, message: String) -> SnaprResul
     fs::write(SNAPSHOTS_FILE, json)?;
 
     //config
-    config.update_current_snapshot(next_id);
+    config.update_current_snapshot_id(next_id);
     config.update_total_storage_bytes(report.new_storage_bytes as u64);
     save_config(&config)?;
     Ok(report)

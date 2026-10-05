@@ -11,6 +11,7 @@ pub struct FileEntry {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Snapshot {
     pub id: u32,
+    pub parent_id: Option<u32>,
     pub message: String,
     pub created_at: u64,
     pub files: Vec<FileEntry>,

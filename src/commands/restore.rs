@@ -25,7 +25,7 @@ pub fn handle_restore(
     } = options;
 
     //check if on current snapshot
-    if config.current_snapshot == Some(snapshot_id) && !force {
+    if config.get_current_snapshot_id() == Some(snapshot_id) && !force {
         return Err(std::io::Error::new(
             std::io::ErrorKind::AlreadyExists,
             format!(
@@ -95,7 +95,7 @@ pub fn handle_restore(
     save_workspace_index(&index)?;
 
     //config
-    config.set_current_snapshot(snapshot_id);
+    config.set_current_snapshot_id(snapshot_id);
     save_config(&config)?;
     Ok(RestoreReport {
         snapshot_id,
