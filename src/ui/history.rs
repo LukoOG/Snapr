@@ -41,6 +41,11 @@ fn print_snapshot(snapshot: &Snapshot, current_snapshot_id: u32) {
         format_timestamp(snapshot.created_at),
     );
     println!("  {}", snapshot.message);
+
+    if let Some(parent_id) = snapshot.parent_id {
+        println!("  └─ from #{}",parent_id);
+    }
+    
     println!(
         "  {} files · {} processed",
         snapshot.stats.file_count,
