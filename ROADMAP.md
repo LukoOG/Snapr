@@ -1,526 +1,110 @@
-# Snapr Demo Roadmap & CLI Polish
+# Snapr Roadmap
 
-> **Goal:** Focus on making Snapr feel like a polished, reliable snapshot engine that clearly demonstrates its core value. The priority is a strong demo rather than a production-complete product.
+This roadmap lists what Snapr v1 already does, what is left before the v1 release, and where the project could go next. Items under "Next" and "Later" are plans, not commitments, and nothing in those sections exists in the code today.
 
----
+For how the current version works, see [docs/architecture.md](docs/architecture.md).
 
-# Current Focus
+## Vision
 
-## Phase 1 — Demo Polish (Current)
+Snapr remembers complete workspace states while storing only what actually changed.
 
-- [ ] Improve CLI output and consistency
-- [ ] Introduce Report → Renderer architecture
-- [ ] Rich save/history/status/diff/restore output
-- [ ] Add restore flags (`--force`, `--dry-run`)
-- [ ] Improve command UX
-- [ ] Demo reliability and ease of use
+Git is built for collaborating on source code. Snapr aims at a different job: capturing and reproducing whole working directories, including large binary and media files, cheaply enough to do it often.
 
----
+## Done in v1
 
-## Phase 2 — Core Engine
+**Core engine**
 
-After the CLI is polished:
+- [x] Fixed-size chunking (4 MiB) with streaming reads
+- [x] SHA-256 content addressing
+- [x] Zstandard compression with a versioned object header
+- [x] Chunk-level deduplication across files and snapshots
+- [x] Workspace index for skipping unchanged files
+- [x] File-level parallelism for hashing, storing, and verification
+- [x] Snapshot ancestry (`parent_id`), including branching after a restore
 
-1. Parallel chunk processing
-2. `snapr verify`
-3. Continue toward content-defined chunking
-4. AI-assisted workspace memory
+**Commands**
 
----
+- [x] `init`, `save`, `status`, `diff`, `history`
+- [x] `restore` with `--force` and `--dry-run`
+- [x] `verify`, with per-issue reporting and a non-zero exit code on failure
 
-# CLI Architecture
+**Structure**
 
-Every command should eventually follow the same pipeline.
+- [x] Command handlers return report structs; the `ui` module renders them
+- [x] Unit and integration test suites
 
-```text
-CLI Command
-      │
-      ▼
-Command Handler
-      │
-      ▼
-Core Engine
-      │
-      ▼
-Report Struct
-      │
-      ▼
-Renderer (ui/)
-      │
-      ▼
-Console Output
-```
+## Before the v1 release
 
-This keeps:
+**Documentation**
 
-- business logic independent
-- UI reusable
-- future GUI/TUI/web support easy
+- [x] Architecture
+- [x] README with quick start
+- [ ] Storage format reference
+- [ ] Verification design
+- [ ] Benchmarking notes
+- [ ] Choose a license and add a `LICENSE` file
 
----
+**Demo**
 
-# Folder Structure
+- [ ] Example workflow
+- [ ] Benchmark numbers
+- [ ] Short demo script
 
-```text
-src/
+## Next: hardening v1
 
-commands/
-    save.rs
-    restore.rs
-    diff.rs
-    history.rs
-    status.rs
+These address the limitations listed in the architecture document. They are grouped by theme, not ordered by priority.
 
-models/
+### Safety and durability
 
-    reports/
-        workspace_store_report.rs
-        restore_report.rs
-        diff_report.rs
-        history_report.rs
+- [ ] **Atomic writes.** Write repository files to a temporary file and rename, so an interrupted command cannot leave a truncated file.
+- [ ] **Repository lock.** Prevent two Snapr processes from writing to the same repository at once.
+- [ ] **Safer restore.** Warn or ask for confirmation when a restore would discard unsaved changes or delete files that are in no snapshot.
+- [ ] **Detailed dry run.** List the files a restore would write and remove, not only the counts.
+- [ ] **Verify on restore.** Check each chunk's hash as it is read, so a damaged chunk cannot be restored silently.
 
-    snapshots/
-    results/
-    config/
-    ...
+### Repository maintenance
 
-ui/
+- [ ] **Garbage collection** (`snapr gc`) to remove objects no snapshot refers to. This is a prerequisite for deleting snapshots.
+- [ ] **Measured repository size.** Report the real size of the object store instead of an accumulated counter (`object_store_size` is a stub today).
+- [ ] **Index rebuild.** A way to regenerate the workspace index (`rebuild_workspace_index` is a stub today).
+- [ ] **Wider verification.** Have `verify` also check the snapshot ancestry graph, the JSON metadata files, and report unreferenced objects.
+- [ ] **Format version checks.** Read the `version` fields that are already written, and refuse or migrate repositories from another version.
 
-    save.rs
-    restore.rs
-    diff.rs
-    history.rs
-    status.rs
+### Usability
 
-storage/
+- [ ] **Ignore file** (`.snaprignore`) to replace the hardcoded ignore rules.
+- [ ] **Run from any subdirectory** by locating `.snapr` in parent directories.
+- [ ] **`snapr show <id>`** to inspect one snapshot: message, time, statistics, and changes from its parent.
+- [ ] **History as a tree**, drawn from `parent_id`, instead of a flat list.
+- [ ] **Per-path restore** for a single file or directory.
 
-snapshot/
+### Library API
 
-filesystem/
+These matter most for a GUI or other front end built on the `snapr` crate.
 
-processing/
-```
+- [ ] Take the repository path as a parameter instead of relying on the process working directory.
+- [ ] Typed errors in place of boxed strings.
+- [ ] Serializable report types (`DiffResult` and the `*Report` structs).
+- [ ] Progress reporting and cancellation for long operations.
+- [ ] Remove the remaining terminal output from outside the `ui` module.
 
-The goal is that **commands never print directly**.
+## Later: v2 directions
 
-Instead:
+Larger changes that would alter the storage model or the scope of the project.
 
-```rust
-let report = handle_save(...)?;
-print_save_report(&report);
-```
-
----
-
-# Save Report
-
-Current direction:
-
-```text
-✓ Snapshot 3 created
-  "Added Goat movie"
-
-────────────────────────────────────────
-
-Workspace
-  Files processed : 47
-  Chunks processed: 358
-  Workspace size  : 1.24 GB
-
-Object Store
-  New chunks      : 163
-  Reused chunks   : 195
-  Storage growth  : 633.96 MB
-  Repository size : 2.84 GB
-
-Storage Efficiency
-  Chunk reuse       : 54.47%
-  Compression saved : 49.31%
-
-Snapshot complete 📸
-```
-
-## Important distinction
-
-Workspace
-
-- What Snapr scanned.
-
-Object Store
-
-- What Snapr actually stored.
-
-Storage Growth
-
-- Additional repository size introduced by this snapshot.
-
-Repository Size
-
-- Total disk usage of `.snapr/objects`.
-
----
-
-# History Command
-
-Current:
-
-```text
-1 Initial
-2 Added chunking
-3 Testing
-```
-
-Target:
-
-```text
-Snapshot History
-
-ID   Files   Chunks   Message
-────────────────────────────────────────
-7      52      421    Added Goat movie
-6      51      358    Parallel chunking
-5      50      312    Restore improvements
-```
-
-Later:
-
-```text
-ID   Date                Files   Message
-──────────────────────────────────────────────────
-7    2026-07-20 10:42      52    Added Goat movie
-6    2026-07-20 08:17      51    Parallel chunking
-```
-
-Future additions
-
-- timestamps
-- workspace size
-- snapshot tags
-
----
-
-# Diff Command
-
-Current functionality is good.
-
-Polish the output only.
-
-Example:
-
-```text
-Comparing Snapshot 3 → 7
-
-Summary
-
-1 added
-3 modified
-0 removed
-
-Added
-
-+ assets/logo.png
-
-Modified
-
-~ src/main.rs
-~ README.md
-~ Cargo.toml
-```
-
----
-
-# Status Command
-
-When clean:
-
-```text
-Workspace Status
-
-Workspace is clean ✓
-```
-
-When dirty:
-
-```text
-Workspace Status
-
-Modified
-
-~ src/main.rs
-
-Added
-
-+ goat.mov
-
-Removed
-
-- notes.txt
-```
-
----
-
-# Restore Command
-
-Target output
-
-```text
-✓ Restored Snapshot 7
-
-Workspace
-
-Files restored : 4
-Files skipped  : 41
-Files removed  : 2
-
-Workspace updated.
-```
-
----
-
-# Restore Flags
-
-## --force
-
-Purpose
-
-Restore even if already on the target snapshot.
-
-Example
-
-```bash
-snapr restore 7 --force
-```
-
-Without force
-
-```text
-Already on snapshot 7.
-
-Use --force to restore anyway.
-```
-
-With force
-
-Restore proceeds normally.
-
-Use cases
-
-- verify repository integrity
-- overwrite accidental edits
-- rehydrate deleted files
-- testing
-
----
-
-## --dry-run
-
-Purpose
-
-Preview what would happen without modifying anything.
-
-Example
-
-```bash
-snapr restore 7 --dry-run
-```
-
-Output
-
-```text
-Would restore
-
-Modified
-
-~ src/main.rs
-
-Added
-
-+ assets/logo.png
-
-Removed
-
-- notes.txt
-
-No files were changed.
-```
-
-This is especially valuable before restoring an old snapshot.
-
----
-
-# Report Types
-
-Move toward one report per command.
-
-Example
-
-```text
-WorkspaceStoreReport
-
-↓
-
-Save Renderer
-```
-
-```text
-RestoreReport
-
-↓
-
-Restore Renderer
-```
-
-```text
-DiffReport
-
-↓
-
-Diff Renderer
-```
-
-```text
-HistoryReport
-
-↓
-
-History Renderer
-```
-
-The report should contain data only.
-
-Formatting belongs entirely inside `ui/`.
-
----
-
-# Object Store Metrics
-
-Current metrics
-
-- total chunks
-- new chunks
-- reused chunks
-- workspace size
-- storage growth
-
-Future metrics
-
-- repository size
-- repository chunk count
-- duplicate chunks avoided
-- average chunk size
-- compression ratio
-- deduplication ratio
-
----
-
-# Future CLI Commands
-
-## snapr verify
-
-Verify repository health.
-
-Example
-
-```text
-Verifying object store...
-
-✓ Objects checked : 18,521
-✓ Corrupt objects : 0
-✓ Missing objects : 0
-✓ Hash mismatches : 0
-
-Repository is healthy.
-```
-
-Purpose
-
-- corruption detection
-- debugging
-- demo confidence
-
----
-
-## snapr show
-
-Inspect a snapshot.
-
-Example
-
-```text
-Snapshot 12
-
-Created
-  2026-07-20 13:17
-
-Message
-  "Added Goat movie"
-
-Workspace
-
-Files : 52
-Chunks: 421
-
-Compared to Snapshot 11
-
-+ goat.mov
-~ README.md
-```
-
----
-
-# Demo Narrative
-
-The demo should communicate one idea clearly:
-
-> Snapr remembers complete workspace states while storing only what actually changed.
-
-Every command should reinforce this.
-
-Save
-
-"What changed?"
-
-Status
-
-"Where am I now?"
-
-Diff
-
-"How are these snapshots different?"
-
-Restore
-
-"Take me back."
-
-History
-
-"What states have existed?"
-
-Verify
-
-"Can I trust my repository?"
-
----
-
-# Long-Term Vision (Not Current Priority)
-
-- Parallel chunk processing
-- Content-defined chunking
-- Garbage collection
-- Remote repositories
-- Streaming restore
-- Snapshot manifests
-- AI workspace memory
-- GUI
-- Cloud sync
-
----
-
-# Guiding Principles
-
-- Business logic never prints.
-- UI only renders reports.
-- Reports are presentation-agnostic.
-- Commands orchestrate.
-- Storage remains independent.
-- Every CLI output should teach the user how Snapr thinks.
+- **Content-defined chunking.** Variable-size chunks whose boundaries depend on content, so inserting bytes into a large file no longer changes every chunk after it.
+- **File metadata.** Record permissions, timestamps, and symbolic links so a restore reproduces more than file content.
+- **Portable repositories.** Normalized path separators, and export/import of a repository as a single archive.
+- **Snapshot management.** Tags, aliases (`snapr restore stable`), message search, and snapshot deletion.
+- **Streaming restore** and parallel file restoration.
+- **Remote repositories** and sync.
+- **GUI.**
+- **AI-assisted workspace memory.**
+
+## Guiding principles
+
+- Business logic never prints. Commands orchestrate and return reports; the `ui` module renders them.
+- Snapshots stay lightweight: content lives in the object store, metadata in the manifest.
+- Favor deduplication, and design for large files.
+- Restoration accuracy comes first.
+- Every piece of CLI output should teach the user how Snapr thinks.
