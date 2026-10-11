@@ -1,26 +1,34 @@
 use crate::{
     constants::{HEADER_SIZE, MAGIC, OBJECTS_DIR}, error::SnaprResult, models::{ChunkStoreResult, CompressedChunk},
 };
-use std::{fs, path::Path};
+use std::{
+    fs::{self, OpenOptions},
+    io::{ErrorKind, Write},
+};
 use zstd::decode_all;
 
 pub fn store_chunk(chunk: CompressedChunk) -> SnaprResult<ChunkStoreResult> {
     let path = format!("{}/{}", OBJECTS_DIR, chunk.hash);
 
-    if Path::new(&path).exists() {
-        return Ok(ChunkStoreResult {
-            hash: chunk.hash,
-            stored: false,
-            original_size: chunk.original_size,
-            stored_size: chunk.object_bytes.len(),
-        });
-    }
-
-    fs::write(path, &chunk.object_bytes)?;
+    // create_new makes "does it exist?" and "create it" a single atomic step,
+    // so when parallel workers store the same chunk exactly one of them
+    // creates the object and reports it as new.
+    let stored = match OpenOptions::new().write(true).create_new(true).open(&path) {
+        Ok(mut file) => {
+            if let Err(e) = file.write_all(&chunk.object_bytes) {
+                // Don't leave a partial object behind under a valid hash.
+                let _ = fs::remove_file(&path);
+                return Err(e.into());
+            }
+            true
+        }
+        Err(e) if e.kind() == ErrorKind::AlreadyExists => false,
+        Err(e) => return Err(e.into()),
+    };
 
     Ok(ChunkStoreResult {
         hash: chunk.hash,
-        stored: true,
+        stored,
         original_size: chunk.original_size,
         stored_size: chunk.object_bytes.len(),
     })

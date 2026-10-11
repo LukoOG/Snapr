@@ -53,7 +53,16 @@ pub fn verify_chunk(hash: &str) -> SnaprResult<ChunkVerificationResult> {
     let compressed = &object[HEADER_SIZE..];
     // 4. Decompress according to compression type
     let contents = match compression {
-        CompressionType::Zstd => zstd::decode_all(compressed)?,
+        CompressionType::Zstd => match zstd::decode_all(compressed) {
+            Ok(contents) => contents,
+            Err(_) => {
+                return Ok(ChunkVerificationResult::Issue(
+                    VerifyIssue::UndecodablePayload {
+                        hash: hash.to_string(),
+                    },
+                ));
+            }
+        },
 
         _ => {
             return Ok(ChunkVerificationResult::Issue(
@@ -108,16 +117,22 @@ pub fn verify_snapshot(
 ) -> SnaprResult<SnapshotVerifyReport> {
     scoped_timer!("process snapshot {}", snapshot.id);
     let mut report = SnapshotVerifyReport::default();
-    let results = snapshot
+    // Assign each unverified chunk to the first file that references it, so a
+    // chunk shared by several files (or repeated within one file) is verified once.
+    let mut claimed: HashSet<&String> = HashSet::new();
+    let pending = snapshot
         .files
-        .par_iter()
+        .iter()
         .map(|FileEntry { chunk_hashes, .. }| {
-            let unverified_hashes = chunk_hashes
+            chunk_hashes
                 .iter()
-                .filter(|hash| !verified.contains(*hash))
-                .collect::<Vec<_>>();
-            verify_file(&unverified_hashes)
+                .filter(|hash| !verified.contains(*hash) && claimed.insert(*hash))
+                .collect::<Vec<_>>()
         })
+        .collect::<Vec<_>>();
+    let results = pending
+        .par_iter()
+        .map(|unverified_hashes| verify_file(unverified_hashes))
         .collect::<SnaprResult<Vec<FileVerifyReport>>>()?;
     for result in results {
         report.merge(result);

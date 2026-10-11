@@ -13,7 +13,7 @@ pub fn compress_chunk(chunk: HashedChunk) -> SnaprResult<CompressedChunk> {
     object.push(VERSION_1);
     object.push(FLAG_NONE);
     object.push(CompressionType::Zstd as u8);
-    object.extend_from_slice(&chunk.bytes.len().to_le_bytes());
+    object.extend_from_slice(&(chunk.bytes.len() as u64).to_le_bytes());
     object.extend_from_slice(&compressed);
 
     Ok(CompressedChunk {

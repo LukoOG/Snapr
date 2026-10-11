@@ -134,3 +134,32 @@ fn save_updates_workspace_index() {
         );
     });
 }
+
+// Files are processed in parallel. When several new files share a chunk,
+// exactly one worker may report it as new; the rest must report it as reused,
+// and new_storage_bytes must equal what was actually written to disk.
+#[test]
+fn save_counts_chunk_shared_by_parallel_files_once() {
+    with_repo(|dir| {
+        const COPIES: usize = 16;
+        for i in 0..COPIES {
+            write_file(&format!("copy_{i}.txt"), b"identical content in every file");
+        }
+
+        let mut snaps = load_snapshots().unwrap();
+        let report = handle_save(&mut snaps, "copies".to_string()).unwrap();
+
+        assert_eq!(report.chunks_processed, COPIES);
+        assert_eq!(report.new_chunks, 1, "a shared chunk must be counted as new once");
+        assert_eq!(report.reused_chunks, COPIES - 1);
+
+        let objects: Vec<_> = std::fs::read_dir(dir.join(".snapr/objects"))
+            .unwrap()
+            .map(|e| e.unwrap())
+            .collect();
+        assert_eq!(objects.len(), 1);
+        let on_disk = objects[0].metadata().unwrap().len();
+        assert_eq!(report.new_storage_bytes as u64, on_disk);
+        assert_eq!(load_config().unwrap().get_total_storage_bytes(), on_disk);
+    });
+}

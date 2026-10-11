@@ -13,10 +13,13 @@ pub enum VerifyIssue {
     #[error("unsupported compression ({compression}) for chunk: {hash}")]
     UnsupportedCompression { hash: String, compression: u8 },
 
+    #[error("payload could not be decompressed for chunk: {hash}")]
+    UndecodablePayload { hash: String },
+
     #[error("Chunk contents do not satify metadata: {hash}")]
     CorruptedChunk { hash: String },
 
-    #[error("Object successfully decompressed but got {expected} instead of {actual}")]
+    #[error("hash mismatch for chunk: {expected} (contents hash to {actual})")]
     HashMismatch { expected: String, actual: String },
 }
 

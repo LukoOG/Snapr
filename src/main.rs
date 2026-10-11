@@ -73,6 +73,9 @@ fn run() -> SnaprResult<()> {
             let snapshots = load_snapshots()?;
             let report = handle_verify(&snapshots)?;
             ui::print_verify_report(&report);
+            if !report.issues.is_empty() {
+                return Err(format!("{} integrity issue(s) found", report.issues.len()).into());
+            }
             Ok(())
         }
     }

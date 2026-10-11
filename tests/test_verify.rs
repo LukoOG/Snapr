@@ -197,3 +197,92 @@ fn verify_empty_snapshots_is_clean() {
         assert_eq!(report.issues.len(), 0);
     });
 }
+
+// Invariant 33: a payload that cannot be decompressed is reported as an
+// UndecodablePayload issue instead of aborting the whole verification.
+#[test]
+fn verify_undecodable_payload_produces_issue_and_continues() {
+    with_repo(|dir| {
+        write_file("broken.txt", b"payload that will be clobbered");
+        write_file("intact.txt", b"payload that stays intact");
+        save("snap");
+
+        let snaps = load_snapshots().unwrap();
+        let hash = snaps[0].files.iter()
+            .find(|f| f.path.contains("broken.txt"))
+            .unwrap()
+            .chunk_hashes[0].clone();
+        let obj_path = dir.join(OBJECTS_DIR).join(&hash);
+
+        // Keep the valid 16-byte header, replace the zstd frame with garbage.
+        let mut obj = fs::read(&obj_path).unwrap();
+        obj.truncate(16);
+        obj.extend_from_slice(b"not a zstd frame");
+        fs::write(&obj_path, &obj).unwrap();
+
+        let report = handle_verify(&snaps).expect("verify must not abort on a bad payload");
+        assert_eq!(report.issues.len(), 1);
+        assert!(
+            matches!(&report.issues[0], VerifyIssue::UndecodablePayload { hash: h } if h == &hash),
+            "expected UndecodablePayload issue, got: {:?}", report.issues[0]
+        );
+        // The other chunk is still verified.
+        assert_eq!(report.chunks_verified, 1);
+    });
+}
+
+// A chunk shared by two files in the same snapshot is verified once.
+#[test]
+fn verify_deduplicates_chunk_shared_by_files_in_one_snapshot() {
+    with_repo(|_| {
+        write_file("x.txt", b"identical content");
+        write_file("y.txt", b"identical content");
+        save("snap");
+
+        let snaps = load_snapshots().unwrap();
+        let report = handle_verify(&snaps).unwrap();
+
+        assert_eq!(report.issues.len(), 0);
+        assert_eq!(report.chunks_referenced, 2);
+        assert_eq!(report.total_chunks, 1);
+        assert_eq!(report.chunks_verified, 1);
+    });
+}
+
+// A damaged chunk shared by two files in the same snapshot is reported once.
+#[test]
+fn verify_reports_shared_damaged_chunk_once() {
+    with_repo(|dir| {
+        write_file("x.txt", b"identical content");
+        write_file("y.txt", b"identical content");
+        save("snap");
+
+        let snaps = load_snapshots().unwrap();
+        let hash = snaps[0].files[0].chunk_hashes[0].clone();
+        fs::remove_file(dir.join(OBJECTS_DIR).join(&hash)).unwrap();
+
+        let report = handle_verify(&snaps).unwrap();
+        assert_eq!(report.issues.len(), 1);
+        assert_eq!(report.chunks_verified, 0);
+    });
+}
+
+// A chunk repeated inside a single file is verified once.
+#[test]
+fn verify_deduplicates_chunk_repeated_within_one_file() {
+    with_repo(|_| {
+        // Two identical 4 MiB chunks → the file's chunk list repeats one hash.
+        write_file("zeros.bin", &vec![0u8; 2 * snapr::models::DEFAULT_CHUNK_SIZE]);
+        save("snap");
+
+        let snaps = load_snapshots().unwrap();
+        assert_eq!(snaps[0].files[0].chunk_hashes.len(), 2);
+        assert_eq!(snaps[0].files[0].chunk_hashes[0], snaps[0].files[0].chunk_hashes[1]);
+
+        let report = handle_verify(&snaps).unwrap();
+        assert_eq!(report.issues.len(), 0);
+        assert_eq!(report.chunks_referenced, 2);
+        assert_eq!(report.total_chunks, 1);
+        assert_eq!(report.chunks_verified, 1);
+    });
+}

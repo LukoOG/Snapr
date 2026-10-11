@@ -2,7 +2,11 @@ use super::format_bytes;
 use crate::models::VerifyReport;
 
 pub fn print_verify_report(report: &VerifyReport) {
-    println!("✓ Repository verified");
+    if report.issues.is_empty() {
+        println!("✓ Repository verified");
+    } else {
+        println!("✗ Repository verification failed");
+    }
 
     println!("\n────────────────────────────────────────");
 
@@ -30,6 +34,9 @@ pub fn print_verify_report(report: &VerifyReport) {
     if report.issues.is_empty() {
         println!("\n✓ No integrity issues found.");
     } else {
-        println!("\n⚠ {} integrity issues found.", report.issues.len());
+        println!("\nIssues");
+        for issue in &report.issues {
+            println!("  ✗ {}", issue);
+        }
     }
 }
