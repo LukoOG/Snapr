@@ -216,7 +216,7 @@ Then `cargo run-bench -- save "timed save"` does the same thing.
 
 ### Using Snapr as a library
 
-The package also builds a library crate, `snapr`, and the CLI is a thin layer over it. Each command handler returns a typed result instead of printing, so another front end can call the same code. The library is not yet a stable API; see the [architecture document](docs/architecture.md#14-building-on-snapr-as-a-library) for what it offers and its current constraints.
+The package also builds a library crate, `snapr`, and the CLI is a thin layer over it. Each command handler returns a typed result instead of printing, so another front end can call the same code. The [stability policy](docs/stability.md) lists which library items, CLI behavior, and on-disk format details you can rely on between releases. See the [architecture document](docs/architecture.md#14-building-on-snapr-as-a-library) for how to call the library and its current constraints.
 
 ## Contributing
 

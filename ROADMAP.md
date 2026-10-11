@@ -105,7 +105,7 @@ The directions in section 4 respond to these. The full list is in [architecture.
 | Working on separate lines of history from a shared root | Intended as a model; commands undesigned | [4.7](#47-branching-related-workflows) |
 | Ignore file, export/import, richer snapshot metadata | Previously noted | [4.8](#48-capture-and-usability) |
 | File metadata, per-path restore, safer restore | Possible direction | [4.8](#48-capture-and-usability) |
-| Library API suitable for other front ends | Possible direction; a stability policy is expected | [4.9](#49-library-api-and-other-interfaces) |
+| Library API suitable for other front ends | Possible direction; a [stability policy](docs/stability.md) exists for the current API | [4.9](#49-library-api-and-other-interfaces) |
 | Graphical or terminal UI client | Previously noted; a potential community contribution | [4.9](#49-library-api-and-other-interfaces) |
 | AI-assisted workspace memory | Intended (part of the project's vision) | [4.10](#410-ai-assisted-workspace-memory) |
 | Encryption | Out of scope | [6](#6-out-of-scope) |
@@ -263,6 +263,8 @@ A graphical client is a potential **community contribution built around the exis
 - The snapshot list, with `id` and `parent_id`, is enough to draw history as a tree.
 - [architecture.md, section 14](docs/architecture.md#14-building-on-snapr-as-a-library) maps user actions to library calls.
 
+The [stability policy](docs/stability.md) already states which library items a client can rely on between releases.
+
 **Core work that would make a client practical** (possible directions):
 
 | Change | Why a client needs it |
@@ -272,7 +274,6 @@ A graphical client is a potential **community contribution built around the exis
 | Serializable report types | Useful to a client that passes reports between its own components. |
 | Progress reporting and cancellation | Long saves, restores, and verifications give no feedback and cannot be stopped. |
 | No terminal output outside the rendering module | One handler still writes a message to standard error. |
-| A stability policy for the library | A statement of which library items client authors can rely on between releases, and how changes to them are announced. One is expected; it has not been written. |
 
 ### 4.10 AI-assisted workspace memory
 

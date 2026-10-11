@@ -755,7 +755,7 @@ Constraints an embedding application has to work with today:
 - **Stray output.** The status handler writes "No snapshots yet" to the process's stderr.
 - **Errors are opaque.** Failures arrive as boxed errors whose only reliable content is the display string.
 - **Report types are not serializable.** `Snapshot`, `FileEntry`, `SnapshotStats`, `SnaprConfig`, and the index types derive `Serialize`/`Deserialize`. `DiffResult` and the `*Report` structs do not, so sending them across a process or IPC boundary requires a mapping layer.
-- **No stability promise.** The public surface exists because the binary and the integration tests need it. It is not a designed API and may change.
+- **Only part of the public surface is supported.** Every module is public because the binary and the integration tests need it. The [stability policy](stability.md) lists the items a client can rely on; everything else may change without notice.
 
 ---
 
