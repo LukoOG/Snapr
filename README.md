@@ -224,4 +224,8 @@ Issues and pull requests are welcome. Please read [docs/architecture.md](docs/ar
 
 ## License
 
-A license has not been chosen yet.
+Snapr is licensed under the [Mozilla Public License 2.0](LICENSE).
+
+In short: you may use, modify, and distribute Snapr. If you distribute a modified version of Snapr's source files, those files must remain under the MPL-2.0 and their source must be made available. Software that only uses Snapr as a library can be under any license. The [LICENSE](LICENSE) file is the authoritative text.
+
+Improvements are most useful to everyone when they are contributed back to this repository, and that is the preferred way to work on Snapr.
