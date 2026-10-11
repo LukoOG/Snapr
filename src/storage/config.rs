@@ -4,7 +4,7 @@ use std::{fs, path::Path};
 pub fn load_config() -> SnaprResult<SnaprConfig> {
     let file_path = CONFIG_FILE;
     if !Path::new(file_path).exists() {
-        return Ok(SnaprConfig::new());
+        return Err("Snapr config file not found".into());
     }
 
     let contents = fs::read_to_string(file_path)?;

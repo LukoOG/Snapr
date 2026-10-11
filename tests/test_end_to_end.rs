@@ -31,7 +31,7 @@ fn end_to_end_init_save_modify_save_diff_restore_verify() {
         assert!(r1.new_chunks > 0);
 
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(1));
+        assert_eq!(config.get_current_snapshot_id(), Some(1));
 
         // ── Step 3: Modify workspace ──
         write_file("project/main.rs", b"fn main() { println!(\"version two - updated\"); }");
@@ -49,7 +49,7 @@ fn end_to_end_init_save_modify_save_diff_restore_verify() {
         assert!(r2.files_processed >= 2);
 
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(2));
+        assert_eq!(config.get_current_snapshot_id(), Some(2));
 
         // ── Step 5: Diff between snapshot 1 and 2 ──
         let snaps = load_snapshots().unwrap();
@@ -106,7 +106,7 @@ fn end_to_end_init_save_modify_save_diff_restore_verify() {
         );
 
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(1));
+        assert_eq!(config.get_current_snapshot_id(), Some(1));
 
         // ── Step 8: Verify repository integrity ──
         let snaps = load_snapshots().unwrap();

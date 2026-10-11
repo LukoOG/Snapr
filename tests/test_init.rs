@@ -78,7 +78,7 @@ fn init_config_has_correct_defaults() {
         let raw = std::fs::read_to_string(dir.join(".snapr/config.json")).unwrap();
         let config: snapr::models::SnaprConfig =
             serde_json::from_str(&raw).expect("config.json should parse");
-        assert_eq!(config.current_snapshot, None);
-        assert_eq!(config.total_storage_bytes, 0);
+        assert_eq!(config.get_current_snapshot_id(), None);
+        assert_eq!(config.get_total_storage_bytes(), 0);
     });
 }

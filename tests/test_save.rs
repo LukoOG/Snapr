@@ -21,7 +21,7 @@ fn save_creates_snapshot_with_correct_id_and_config() {
 
         // Config tracks current snapshot.
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(1));
+        assert_eq!(config.get_current_snapshot_id(), Some(1));
 
         // Report shows one file processed and non-zero new chunks.
         assert_eq!(report.files_processed, 1);
@@ -50,7 +50,7 @@ fn save_assigns_sequential_ids() {
         let ids: Vec<u32> = snaps.iter().map(|s| s.id).collect();
         assert_eq!(ids, vec![1, 2, 3]);
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(3));
+        assert_eq!(config.get_current_snapshot_id(), Some(3));
     });
 }
 

@@ -43,7 +43,7 @@ fn restore_writes_target_files_to_disk() {
         );
 
         let config = load_config().unwrap();
-        assert_eq!(config.current_snapshot, Some(1));
+        assert_eq!(config.get_current_snapshot_id(), Some(1));
     });
 }
 
@@ -113,7 +113,7 @@ fn restore_dry_run_makes_no_filesystem_changes() {
         // Config must not change.
         let config = load_config().unwrap();
         assert_eq!(
-            config.current_snapshot,
+            config.get_current_snapshot_id(),
             Some(2),
             "dry-run must not update current_snapshot in config"
         );
