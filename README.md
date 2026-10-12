@@ -201,7 +201,7 @@ The integration tests in `tests/` each run in a fresh temporary repository.
 Building with the `benchmark` feature prints how long each stage took:
 
 ```bash
-cargo run --features benchmark -- save "timed save"
+cargo run --features benchmark save "timed save"
 ```
 
 If you use this often, add aliases to `.cargo/config.toml` in your checkout:
