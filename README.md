@@ -1,4 +1,4 @@
-# Snapr
+# Snapr: https://lukoog.github.io/snapr-website/
 
 Snapr is a snapshot tool for directories, written in Rust. It saves the full state of a workspace as a numbered snapshot, shows what changed between snapshots, restores any earlier snapshot, and checks that everything it stored is still intact.
 
